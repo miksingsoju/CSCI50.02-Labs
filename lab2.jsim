@@ -38,8 +38,17 @@
 * inverter is the type of subcircuit that we want (defined in stdcell.jsim).
 *******************************************************************************
 
-Xinv clk1 out inverter
+* (ABC)' -- clk1 is A, clk2 is B, clk3 is C
+Xnand1 clk1 clk2 clk3 n1 nand3
 
+* (DE)' -- clk4 is D, clk5 is E
+Xnand2 clk4 clk5 n2 nand2
+
+* (FG)' -- clk 6 is F, clk7 is G
+Xnand3 clk6 clk7 n3 nand2
+
+* ((ABC)'(DE)'(FG)')'
+Xnand4 n1 n2 n3 out nand3
 
 *******************************************************************************
 * The circuit above does NOT display anything in the simulator. We tell JSim
@@ -52,10 +61,16 @@ Xinv clk1 out inverter
 * ".plot clk1 out" instead, but it will be hard to see any overlaps in signal.)
 *******************************************************************************
 
-.tran 10ns
-.plot clk1
-.plot out
+* 1200ns because we are using clk7
 
+.tran 1200ns
+.plot clk1
+.plot clk2
+.plot clk3
+.plot clk4
+.plot clk5
+.plot clk7
+.plot out
 
 *******************************************************************************
 * To actually see these plots, click the "Gate-level Simulation" button on the
