@@ -70,7 +70,7 @@
 
 * 1200ns because we are using clk7
 Xmycircuit clk1 clk2 clk3 clk4 clk5 clk6 clk7 y fx
-.tran 600ns
+.tran 500ns
 .plot clk1
 .plot clk2
 .plot clk3
