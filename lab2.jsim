@@ -38,8 +38,21 @@
 * inverter is the type of subcircuit that we want (defined in stdcell.jsim).
 *******************************************************************************
 
-Xinv clk1 out inverter
+* Nand Definition of a Full-Adder
+.subckt fa  A B Cin Sum Cout
+    Xnand1 A B out1 nand2
+    Xnand2 A out1 out2 nand2
+    Xnand3 B out1 out3 nand2
+    Xnand4 out2 out3 out4 nand2
+    Xnand5 out4 Cin out5 nand2
+    Xnand6 out4 out5 out6 nand2
+    Xnand7 out5 Cin out7 nand2
+    Xnand8 out6 out7 Sum nand2
+    Xnand9 out1 out5 Cout nand2
+.ends
 
+* Connect A, B, Carry_in to clk5, clk6, clk7
+Xmy_fa clk5 clk6 clk7 fa_sum fa_carry fa
 
 *******************************************************************************
 * The circuit above does NOT display anything in the simulator. We tell JSim
@@ -52,9 +65,20 @@ Xinv clk1 out inverter
 * ".plot clk1 out" instead, but it will be hard to see any overlaps in signal.)
 *******************************************************************************
 
-.tran 10ns
+
+.tran 1200ns
+
 .plot clk1
-.plot out
+.plot clk2
+.plot clk3
+.plot clk4
+.plot clk5
+.plot clk6
+.plot clk7
+
+
+.plot fa_sum
+.plot fa_carry
 
 
 *******************************************************************************
