@@ -60,7 +60,7 @@
 * F' = 'A * B * CD
 * F = '('A * B * CD )
 
-.subckt ex2 A B C D F
+.subckt fa A B C D F
     Xnot1 A notA inverter
     Xnand1 C D nCD nand2
     Xnot2 nCD CD inverter
