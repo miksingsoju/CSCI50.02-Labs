@@ -1,18 +1,8 @@
 *******************************************************************************
-* All lines that begin with * are comments. You may safely remove them for your
-* own submissions, but as with any programming exercise, please put in your own
-* comments to explain your code!
-*
-* In your own submissions, make sure to replace this comment block with your
-* names, in the following format:
-*
 * LAB #2
 * - Buenaobra, John Aldrich
 * - Cayago, Mikylla Cherrizse
 * - Sy, Mishka
-*
-* Make sure your names are in alphabetical order, Last Name before First Name.
-* You will get deductions if you don't strictly follow this format.
 *******************************************************************************
 
 
@@ -38,36 +28,46 @@
 * inverter is the type of subcircuit that we want (defined in stdcell.jsim).
 *******************************************************************************
 
-* (ABC)' -- clk1 is A, clk2 is B, clk3 is C
-*Xnand1 clk1 clk2 clk3 n1 nand3
 
-* (DE)' -- clk4 is D, clk5 is E
-*Xnand2 clk4 clk5 n2 nand2
-
-* (FG)' -- clk 6 is F, clk7 is G
-*Xnand3 clk6 clk7 n3 nand2
-
-* ((ABC)'(DE)'(FG)')'
-*Xnand4 n1 n2 n3 out nand3
-
+*******************************************************************************
+* The subcircuit fx implements ABC + DE + FG using 4 NAND Gates
+* We used NAND Gates because the transition delay is lesser than
+* when implementing fx using AND gates and OR gates
+*      .subckt fx2 a b c d e f g out
+*           Xand1 a b c abc and3
+*           Xand2 d e de and2 
+*           Xand3 f g fg and2
+*           Xout abc de fg out or3
+*      .ends
+*
+* When plotting both circuits, it appears that there is a 0.24-0.26ns difference
+* in the delay
+* Therefore, using NAND Gates are more efficient for implementing fx
+*
+* The equation for OUT = ABC + DE + FG was obtained by using De Morgan's Law as follows:
+* OUT = (ABC + DE + FG)'
+* OUT' = (ABC)'(DE)'(FG)'
+* Since OUT' = (ABC)'(DE)'(FG)',
+* OUT can be obtained from OUT' by negating it again 
+* OUT'' = ((ABC)'(DE)'(FG)')'
+* OUT = Nand( Nand(ABC),Nand(DE),Nand(FG))
+*******************************************************************************
 .subckt fx a b c d e f g out
-    Xnand1 a b c n1 nand3
-    Xnand2 d e n2 nand2
-    Xnand3 f g n3 nand2
-    Xnand4 n1 n2 n3 out nand3
+* NAND ABC using 3 input NAND gate
+    Xnand1 a b c abc nand3
+
+* NAND DE using 2 input NAND gate
+    Xnand2 d e de nand2
+
+* NAND FG using 2 input NAND gate
+    Xnand3 f g fg nand2
+
+* NAND ABC, FG, and DE using 3 input NAND Gate
+* This is the output of the subcircuit
+    Xnand4 abc de fg out nand3
 .ends
 
-* F = A + !B + !(CD)
-* F' = 'A * B * CD
-* F = '('A * B * CD )
 
-.subckt ex2 A B C D F
-    Xnot1 A notA inverter
-    Xnand1 C D nCD nand2
-    Xnot2 nCD CD inverter
-    Xnand3 notA B CD nF nand3
-    Xnot3 nF F inverter
-.ends
 
 * Nand Definition of a Full-Adder
 .subckt fa  A B Cin Sum Cout
@@ -82,9 +82,6 @@
     Xnand9 out1 out5 Cout nand2
 .ends
 
-* Connect A, B, Carry_in to clk5, clk6, clk7
-Xmy_fa clk5 clk6 clk7 fa_sum fa_carry fa
-
 *******************************************************************************
 * The circuit above does NOT display anything in the simulator. We tell JSim
 * to display something via .tran and .plot commands. The .tran statement
@@ -96,8 +93,23 @@ Xmy_fa clk5 clk6 clk7 fa_sum fa_carry fa
 * ".plot clk1 out" instead, but it will be hard to see any overlaps in signal.)
 *******************************************************************************
 
-Xmycircuit clk1 clk2 clk3 clk4 clk5 clk6 clk7 y fx
-.tran 1200ns
+
+*******************************************************************************
+* This instantiates subcircuit fx 
+* Connect a, b, c, d, e, f, g, out to [clk1 to clk7]
+*******************************************************************************
+Xmy_fx clk1 clk2 clk3 clk4 clk5 clk6 clk7 out fx
+
+
+*******************************************************************************
+* This instantiates subcircuit fa
+* Connect A, B, Carry_in to clk5, clk6, clk7
+*******************************************************************************
+Xmy_fa clk5 clk6 clk7 fa_sum fa_carry fa
+
+.tran 640ns
+
+* Plot clk1 to clk7
 .plot clk1
 .plot clk2
 .plot clk3
@@ -105,9 +117,14 @@ Xmycircuit clk1 clk2 clk3 clk4 clk5 clk6 clk7 y fx
 .plot clk5
 .plot clk6
 .plot clk7
-.plot y
 
+* Plot the output of fx
+.plot out
+
+* Plot the sum of the fa
 .plot fa_sum
+
+* Plot the carry of fa
 .plot fa_carry
 *******************************************************************************
 * To actually see these plots, click the "Gate-level Simulation" button on the
