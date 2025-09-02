@@ -5,29 +5,9 @@
 * - Sy, Mishka
 *******************************************************************************
 
-
-*******************************************************************************
-* The following .include lines are necessary for all your CSCI 50.02 JSim
-* exercises. These work like your Java import statement.
-*******************************************************************************
-
 .include "8clocks.jsim"
 .include "nominal.jsim"
 .include "stdcell.jsim"
-
-
-*******************************************************************************
-* What follows is a (one-line) statement that describes our first "Hello
-* World!" circuit. This statement is in the form:
-*
-*   Xid a z inverter
-*
-* Xid is just the name we give to this circuit block (in this case, Xinv).
-* a is an input node ("clk1" is a 10ns-period clock defined in 8clocks.jsim).
-* z is an output node (the name "out" is just something we made up).
-* inverter is the type of subcircuit that we want (defined in stdcell.jsim).
-*******************************************************************************
-
 
 *******************************************************************************
 * The subcircuit fx implements ABC + DE + FG using 4 NAND Gates
@@ -52,6 +32,8 @@
 * OUT'' = ((ABC)'(DE)'(FG)')'
 * OUT = Nand( Nand(ABC),Nand(DE),Nand(FG))
 *******************************************************************************
+
+
 .subckt fx a b c d e f g out
 * NAND ABC using 3 input NAND gate
     Xnand1 a b c abc nand3
@@ -68,8 +50,21 @@
 .ends
 
 
-
+*******************************************************************************
 * Nand Definition of a Full-Adder
+* By definition
+* Full Adder Sum = X ⊕ Y ⊕ Z, where Z is the Carry in
+* X ⊕ Y= X!Y + !XY
+* X ⊕ Y = !(!(X!Y)!(!XY))                 !NOTE A + B = (!A NAND !B)
+* X ⊕ Y ⊕ CIn = !(!(X!Y)!(!XY)) ⊕ CIn    !For Simplification Purposes we will simplify X ⊕ Y as S the Sum 
+* S ⊕ Z = S!Z + !SZ
+* S ⊕ Z = S!Z + !SZ
+* S ⊕ Z = !(!(S!Z)!(!SZ))
+* Here you can either use this already to configure the subckt but we still graphed it's circuit 
+* and based the inputs outputs of each Nand There for double-checking
+*******************************************************************************
+
+
 .subckt fa  A B Cin Sum Cout
     Xnand1 A B out1 nand2
     Xnand2 A out1 out2 nand2
@@ -82,22 +77,13 @@
     Xnand9 out1 out5 Cout nand2
 .ends
 
-*******************************************************************************
-* The circuit above does NOT display anything in the simulator. We tell JSim
-* to display something via .tran and .plot commands. The .tran statement
-* specifies the period of time (the "transient") that we want to plot.
-* Afterwards, we just .plot the nodes that we are interested in.
-*
-* In this example, we plot the input and the output of the Xinv circuit in two
-* separate "plot channels". (You can plot both signals in one channel by saying
-* ".plot clk1 out" instead, but it will be hard to see any overlaps in signal.)
-*******************************************************************************
-
 
 *******************************************************************************
 * This instantiates subcircuit fx 
 * Connect a, b, c, d, e, f, g, out to [clk1 to clk7]
 *******************************************************************************
+
+
 Xmy_fx clk1 clk2 clk3 clk4 clk5 clk6 clk7 out fx
 
 
@@ -105,9 +91,13 @@ Xmy_fx clk1 clk2 clk3 clk4 clk5 clk6 clk7 out fx
 * This instantiates subcircuit fa
 * Connect A, B, Carry_in to clk5, clk6, clk7
 *******************************************************************************
+
+
 Xmy_fa clk5 clk6 clk7 fa_sum fa_carry fa
 
+
 .tran 640ns
+
 
 * Plot clk1 to clk7
 .plot clk1
@@ -126,23 +116,3 @@ Xmy_fa clk5 clk6 clk7 fa_sum fa_carry fa
 
 * Plot the carry of fa
 .plot fa_carry
-*******************************************************************************
-* To actually see these plots, click the "Gate-level Simulation" button on the
-* toolbar (fourth button from the right, the one that looks like an AND gate).
-* This opens a separate Plot Window.
-*
-* While these .jsim files need to be opened in JSim to perform the simulations,
-* we HIGHLY recommend that you edit these files in a full-fledged text editor
-* instead of from within JSim's own editor, because the JSim editor does NOT
-* have undo/redo functions. I personally recommend Visual Studio Code:
-*
-*   https://code.visualstudio.com/
-*
-* Then, when you want to see your changes on the Plot Window, simply click the
-* "Reload Files" button (the button with the green looping arrows on a sheet of
-* paper), then re-simulate by clicking the "Gate-level Simulation" button (the
-* Plot Window has its own). It is NOT enough to click just one of the two
-* buttons -- you have to click Reload, then Simulation, in that order!
-*
-* Happy hacking! - eric, ros, gab
-*******************************************************************************
