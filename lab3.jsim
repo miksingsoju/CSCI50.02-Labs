@@ -96,4 +96,7 @@ Wb b[31:0] nrz(0, 5, 200ns, 0ns, 0.001ns, 0.001ns)
 * Plot the carry of fa
 .plot fa_carry
 
-
+* Plot the inputs and sum output
+.plot a[31:0]
+.plot b[31:0]
+.plot sum[31:0]
