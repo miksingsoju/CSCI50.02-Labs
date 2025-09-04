@@ -10,47 +10,6 @@
 .include "stdcell.jsim"
 
 *******************************************************************************
-* The subcircuit fx implements ABC + DE + FG using 4 NAND Gates
-* We used NAND Gates because the transition delay is lesser than
-* when implementing fx using AND gates and OR gates
-*      .subckt fx2 a b c d e f g out
-*           Xand1 a b c abc and3
-*           Xand2 d e de and2 
-*           Xand3 f g fg and2
-*           Xout abc de fg out or3
-*      .ends
-*
-* When plotting both circuits, it appears that there is a 0.24-0.26ns difference
-* in the delay
-* Therefore, using NAND Gates are more efficient for implementing fx
-*
-* The equation for OUT = ABC + DE + FG was obtained by using De Morgan's Law as follows:
-* OUT = (ABC + DE + FG)'
-* OUT' = (ABC)'(DE)'(FG)'
-* Since OUT' = (ABC)'(DE)'(FG)',
-* OUT can be obtained from OUT' by negating it again 
-* OUT'' = ((ABC)'(DE)'(FG)')'
-* OUT = Nand( Nand(ABC),Nand(DE),Nand(FG))
-*******************************************************************************
-
-
-.subckt fx a b c d e f g out
-* NAND ABC using 3 input NAND gate
-    Xnand1 a b c abc nand3
-
-* NAND DE using 2 input NAND gate
-    Xnand2 d e de nand2
-
-* NAND FG using 2 input NAND gate
-    Xnand3 f g fg nand2
-
-* NAND ABC, FG, and DE using 3 input NAND Gate
-* This is the output of the subcircuit
-    Xnand4 abc de fg out nand3
-.ends
-
-
-*******************************************************************************
 * Nand Definition of a Full-Adder
 * By definition
 * Full Adder Sum = X ⊕ Y ⊕ Z, where Z is the Carry in
@@ -64,7 +23,6 @@
 * and based the inputs outputs of each Nand There for double-checking
 *******************************************************************************
 
-
 .subckt fa  A B Cin Sum Cout
     Xnand1 A B out1 nand2
     Xnand2 A out1 out2 nand2
@@ -77,23 +35,46 @@
     Xnand9 out1 out5 Cout nand2
 .ends
 
-
-*******************************************************************************
-* This instantiates subcircuit fx 
-* Connect a, b, c, d, e, f, g, out to [clk1 to clk7]
-*******************************************************************************
-
-
-Xmy_fx clk1 clk2 clk3 clk4 clk5 clk6 clk7 out fx
-
-
 *******************************************************************************
 * This instantiates subcircuit fa
 * Connect A, B, Carry_in to clk5, clk6, clk7
 *******************************************************************************
 
-
 Xmy_fa clk5 clk6 clk7 fa_sum fa_carry fa
+
+
+
+*******************************************************************************
+* 32-bit Adder
+* insert explanation here
+*******************************************************************************
+
+.subckt add32 a[31:0] b[31:0] cin0 sum[31:0] cout[31:30]
+* start code here
+.ends
+
+*******************************************************************************
+* This instantiates subcircuit add32
+* insert explanation
+*******************************************************************************
+
+Xsum a[31:0] b[31:0] 0 sum[31:0] c31 c30 add32
+
+
+
+*******************************************************************************
+* These are the digital waveforms for testing
+* insert explanation
+*******************************************************************************
+
+* Digital Waveform for input a[31:0]
+Wa a[31:0] nrz(0, 5, 200ns, 0ns, 0.001ns, 0.001ns)
++ 0x00000000 0x55555555 0x00000000 0x55555555 0xFFFFFFFF 0x0AAAAAAA 0x00000000 0x0AAAAAAA 0x00000001 0xFFFFFFFF
+
+* Digital Waveform for input b[31:0]
+Wb b[31:0] nrz(0, 5, 200ns, 0ns, 0.001ns, 0.001ns)
++ 0x00000000 0x00000000 0x55555555 0x55555555 0xFFFFFFFF 0x00000000 0x0AAAAAAA 0x0AAAAAAA 0xFFFFFFFF 0x00000001
+
 
 
 .tran 640ns
@@ -108,11 +89,14 @@ Xmy_fa clk5 clk6 clk7 fa_sum fa_carry fa
 .plot clk6
 .plot clk7
 
-* Plot the output of fx
-.plot out
 
 * Plot the sum of the fa
 .plot fa_sum
 
 * Plot the carry of fa
 .plot fa_carry
+
+* Plot the inputs and sum output
+.plot a[31:0]
+.plot b[31:0]
+.plot sum[31:0]
