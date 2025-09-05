@@ -35,22 +35,45 @@
     Xnand9 out1 out5 Cout nand2
 .ends
 
-*******************************************************************************
-* This instantiates subcircuit fa
-* Connect A, B, Carry_in to clk5, clk6, clk7
-*******************************************************************************
-
-Xmy_fa clk5 clk6 clk7 fa_sum fa_carry fa
-
-
 
 *******************************************************************************
 * 32-bit Adder
 * insert explanation here
 *******************************************************************************
 
-.subckt add32 a[31:0] b[31:0] cin0 sum[31:0] cout[31:30]
-* start code here
+.subckt add32 a[31:0] b[31:0] c_in0 sum[31:0] c_out[31:30]
+    XFa0  a0  b0  c_in0  sum0  c_out0  fa
+    XFa1  a1  b1  c_out0 sum1  c_out1  fa
+    XFa2  a2  b2  c_out1 sum2  c_out2  fa
+    XFa3  a3  b3  c_out2 sum3  c_out3  fa
+    XFa4  a4  b4  c_out3 sum4  c_out4  fa
+    XFa5  a5  b5  c_out4 sum5  c_out5  fa
+    XFa6  a6  b6  c_out5 sum6  c_out6  fa
+    XFa7  a7  b7  c_out6 sum7  c_out7  fa
+    XFa8  a8  b8  c_out7 sum8  c_out8  fa
+    XFa9  a9  b9  c_out8 sum9  c_out9  fa
+    XFa10 a10 b10 c_out9  sum10 c_out10 fa
+    XFa11 a11 b11 c_out10 sum11 c_out11 fa
+    XFa12 a12 b12 c_out11 sum12 c_out12 fa
+    XFa13 a13 b13 c_out12 sum13 c_out13 fa
+    XFa14 a14 b14 c_out13 sum14 c_out14 fa
+    XFa15 a15 b15 c_out14 sum15 c_out15 fa
+    XFa16 a16 b16 c_out15 sum16 c_out16 fa
+    XFa17 a17 b17 c_out16 sum17 c_out17 fa
+    XFa18 a18 b18 c_out17 sum18 c_out18 fa
+    XFa19 a19 b19 c_out18 sum19 c_out19 fa
+    XFa20 a20 b20 c_out19 sum20 c_out20 fa
+    XFa21 a21 b21 c_out20 sum21 c_out21 fa
+    XFa22 a22 b22 c_out21 sum22 c_out22 fa
+    XFa23 a23 b23 c_out22 sum23 c_out23 fa
+    XFa24 a24 b24 c_out23 sum24 c_out24 fa
+    XFa25 a25 b25 c_out24 sum25 c_out25 fa
+    XFa26 a26 b26 c_out25 sum26 c_out26 fa
+    XFa27 a27 b27 c_out26 sum27 c_out27 fa
+    XFa28 a28 b28 c_out27 sum28 c_out28 fa
+    XFa29 a29 b29 c_out28 sum29 c_out29 fa
+    XFa30 a30 b30 c_out29 sum30 c_out[30] fa
+    XFa31 a31 b31 c_out30 sum31 c_out[31] fa
 .ends
 
 *******************************************************************************
@@ -63,7 +86,7 @@ Xsum a[31:0] b[31:0] 0 sum[31:0] c31 c30 add32
 
 
 *******************************************************************************
-* These are the digital waveforms for testing
+* These are the Digital Waveforms for testing
 * insert explanation
 *******************************************************************************
 
@@ -77,7 +100,7 @@ Wb b[31:0] nrz(0, 5, 200ns, 0ns, 0.001ns, 0.001ns)
 
 
 
-.tran 640ns
+.tran 2000ns
 
 
 * Plot clk1 to clk7
@@ -96,7 +119,10 @@ Wb b[31:0] nrz(0, 5, 200ns, 0ns, 0.001ns, 0.001ns)
 * Plot the carry of fa
 .plot fa_carry
 
+
 * Plot the inputs and sum output
-.plot a[31:0]
-.plot b[31:0]
-.plot sum[31:0]
+.plot sum[30] sum[31]
+.plot c30
+.plot c31
+
+
