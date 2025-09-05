@@ -99,28 +99,10 @@ Wb b[31:0] nrz(0, 5, 200ns, 0ns, 0.001ns, 0.001ns)
 + 0x00000000 0x00000000 0x55555555 0x55555555 0xFFFFFFFF 0x00000000 0x0AAAAAAA 0x0AAAAAAA 0xFFFFFFFF 0x00000001
 
 
-
 .tran 2000ns
 
 
-* Plot clk1 to clk7
-.plot clk1
-.plot clk2
-.plot clk3
-.plot clk4
-.plot clk5
-.plot clk6
-.plot clk7
-
-
-* Plot the sum of the fa
-.plot fa_sum
-
-* Plot the carry of fa
-.plot fa_carry
-
-
-* Plot the inputs and sum output
+* Plot the inputs and sum output 
 .plot sum[30] sum[31]
 .plot c30
 .plot c31
@@ -128,3 +110,5 @@ Wb b[31:0] nrz(0, 5, 200ns, 0ns, 0.001ns, 0.001ns)
 .plot a[31:0]
 .plot b[31:0]
 .plot sum[31:0]
+
+
