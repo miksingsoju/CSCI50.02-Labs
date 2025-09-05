@@ -125,4 +125,6 @@ Wb b[31:0] nrz(0, 5, 200ns, 0ns, 0.001ns, 0.001ns)
 .plot c30
 .plot c31
 
-
+.plot a[31:0]
+.plot b[31:0]
+.plot sum[31:0]
