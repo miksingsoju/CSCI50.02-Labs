@@ -47,11 +47,28 @@
 * The carry-out of each stage is connected to the carry-in of the next stage,
 * creating a ripple-carry chain. 
 * This produces the 32-bit sum `sum[31:0]`.
+* 
+*  Two carry outputs are exposed:
+*   - c_out31 : the final carry out of the adder. This shows if the result
+*               overflowed in unsigned addition (extra bit).
+*   - c_out30 : the carry into the most significant bit (bit 31). Used together
+*               with c_out31 to check signed overflow:
+*
+*               signed overflow = c_out30 XOR c_out31
 *******************************************************************************
 
 .subckt add32 a[31:0] b[31:0] c_in0 sum[31:0] c_out[31:30]
+
+    * fa is instantiated here, starting with an initial carry in 
     XFa0  a0  b0  c_in0  sum0  c_out0  fa
+
+    * the carry out of the previous stage is now the carry in for this stage,
+    * creating a ripple effect
     XFa1  a1  b1  c_out0 sum1  c_out1  fa
+
+    * this pattern of using previous carry out 
+    * as the carry in continues in the next stages
+
     XFa2  a2  b2  c_out1 sum2  c_out2  fa
     XFa3  a3  b3  c_out2 sum3  c_out3  fa
     XFa4  a4  b4  c_out3 sum4  c_out4  fa
@@ -81,6 +98,8 @@
     XFa28 a28 b28 c_out27 sum28 c_out28 fa
     XFa29 a29 b29 c_out28 sum29 c_out29 fa
     XFa30 a30 b30 c_out29 sum30 c_out[30] fa
+
+    * this subcircuit outputs the last sum, sum31 
     XFa31 a31 b31 c_out30 sum31 c_out[31] fa
 .ends
 
