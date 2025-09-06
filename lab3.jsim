@@ -117,24 +117,46 @@ Xsum a[31:0] b[31:0] 0 sum[31:0] c31 c30 add32
 
 * Input a[31:0]
 
+
+
+Wa a[31:0] nrz(0, 5, 200ns, 0ns, 0.001ns, 0.001ns)
++ 0x00000000 0x55555555 0x00000000 0x55555555 0xFFFFFFFF 0x0AAAAAAA 0x00000000 0x0AAAAAAA 0x00000001 0xFFFFFFFF
+
+* Input b[31:0]
+Wb b[31:0] nrz(0, 5, 200ns, 0ns, 0.001ns, 0.001ns)
++ 0x00000000 0x00000000 0x55555555 0x55555555 0xFFFFFFFF 0x00000000 0x0AAAAAAA 0x0AAAAAAA 0xFFFFFFFF 0x00000001   
+
+.tran 2000ns
+
+* Plot the inputs and sum output
+.plot c30
+.plot c31
+
+.plot a[31:0]
+.plot b[31:0]
+.plot sum[31:0]
+
+
 *******************************************************************************
+* Results 
+*
 * a) 0x00000000 + 0x00000000
 * C30 - 237ps - 0
 * C31 - 214ps - 0 
 * Sum - 314ps
-* Output matches expected result
+* Output = 0x00000000
 
 * b) 0x55555555 + 0x00000000
 * C30 - 373ps - 0
 * C31 - 214ps - 0 
 * Sum - 451ps
-* Output matches expected result
+* Output = 0x55555555
 
 * c) 0x00000000 + 0x55555555
 * C30 - 372ps - 0
 * C31 - 214ps - 0 
 * Sum - 452
-* Output matches expected result
+* Output = 0x55555555
 
 * d) 0x55555555 + 0x55555555
 * C30 - 130ps - 1
@@ -152,13 +174,13 @@ Xsum a[31:0] b[31:0] 0 sum[31:0] c31 c30 add32
 * C30 - 237ps - 0
 * C31 - 351ps - 0
 * Sum - 452ps
-* Output matches expected result
+* Output = 0xAAAAAAAA
 
 * g) 0x00000000 + 0xAAAAAAAA
 * C30 - 237ps - 0
 * C31 - 351ps - 0
 * Sum - 452ps
-* Output matches expected result
+* Output = 0xAAAAAAAA
 
 * h) 0xAAAAAAAA + 0xAAAAAAAA
 * C30 - 237ps - 0
@@ -166,6 +188,8 @@ Xsum a[31:0] b[31:0] 0 sum[31:0] c31 c30 add32
 * Sum - 314ps 
 * Output = 0x55555554
 
+*******************************************************************************
+* SPECIAL TEST CASES:
 * i) 0x00000001 + 0xFFFFFFFF
 * C30 - 4.08ns - 1
 * C31 - 4.17ns - 1
@@ -180,21 +204,13 @@ Xsum a[31:0] b[31:0] 0 sum[31:0] c31 c30 add32
 
 *******************************************************************************
 
-Wa a[31:0] nrz(0, 5, 200ns, 0ns, 0.001ns, 0.001ns)
-+ 0x00000000 0x55555555 0x00000000 0x55555555 0xFFFFFFFF 0x0AAAAAAA 0x00000000 0x0AAAAAAA 0x00000001 0xFFFFFFFF
-   
-
-
-* Input b[31:0]
-Wb b[31:0] nrz(0, 5, 200ns, 0ns, 0.001ns, 0.001ns)
-+ 0x00000000 0x00000000 0x55555555 0x55555555 0xFFFFFFFF 0x00000000 0x0AAAAAAA 0x0AAAAAAA 0xFFFFFFFF 0x00000001   
-
-.tran 2000ns
-
-* Plot the inputs and sum output
-.plot c30
-.plot c31
-
-.plot a[31:0]
-.plot b[31:0]
-.plot sum[31:0]
+*******************************************************************************
+* Analysis
+* 
+* Most additions (a–h) settle quickly: 300–450 ps total delay.*
+* These cases either don’t generate carries or the carry propagates only a short distance before dying out.
+*
+* The last two items (i-j) require the carry to ripple through all 32 stages.
+*
+* Delay is ~4.1–4.2 ns, which is approximately 10× slower than the other cases.
+********************************************************************************
