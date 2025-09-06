@@ -77,8 +77,7 @@
 .ends
 
 *******************************************************************************
-* This instantiates subcircuit add32
-* insert explanation
+* Instantiate subcircuit add32
 *******************************************************************************
 
 Xsum a[31:0] b[31:0] 0 sum[31:0] c31 c30 add32
@@ -87,22 +86,29 @@ Xsum a[31:0] b[31:0] 0 sum[31:0] c31 c30 add32
 
 *******************************************************************************
 * These are the Digital Waveforms for testing
-* insert explanation
 *******************************************************************************
 
-* Digital Waveform for input a[31:0]
+* Input a[31:0]
 Wa a[31:0] nrz(0, 5, 200ns, 0ns, 0.001ns, 0.001ns)
 + 0x00000000 0x55555555 0x00000000 0x55555555 0xFFFFFFFF 0x0AAAAAAA 0x00000000 0x0AAAAAAA 0x00000001 0xFFFFFFFF
 
-* Digital Waveform for input b[31:0]
+* Input b[31:0]
 Wb b[31:0] nrz(0, 5, 200ns, 0ns, 0.001ns, 0.001ns)
 + 0x00000000 0x00000000 0x55555555 0x55555555 0xFFFFFFFF 0x00000000 0x0AAAAAAA 0x0AAAAAAA 0xFFFFFFFF 0x00000001
+
 
 
 .tran 2000ns
 
 
-* Plot the inputs and sum output 
+* Plot the sum of the fa
+.plot fa_sum
+
+* Plot the carry of fa
+.plot fa_carry
+
+
+* Plot the inputs and sum output
 .plot sum[30] sum[31]
 .plot c30
 .plot c31
@@ -110,5 +116,3 @@ Wb b[31:0] nrz(0, 5, 200ns, 0ns, 0.001ns, 0.001ns)
 .plot a[31:0]
 .plot b[31:0]
 .plot sum[31:0]
-
-
