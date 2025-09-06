@@ -127,16 +127,7 @@ Wb b[31:0] nrz(0, 5, 200ns, 0ns, 0.001ns, 0.001ns)
 
 .tran 2000ns
 
-
-* Plot the sum of the fa
-.plot fa_sum
-
-* Plot the carry of fa
-.plot fa_carry
-
-
 * Plot the inputs and sum output
-.plot sum[30] sum[31]
 .plot c30
 .plot c31
 
