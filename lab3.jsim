@@ -116,14 +116,78 @@ Xsum a[31:0] b[31:0] 0 sum[31:0] c31 c30 add32
 *******************************************************************************
 
 * Input a[31:0]
+
+*******************************************************************************
+* a) 0x00000000 + 0x00000000
+* C30 - 237ps - 0
+* C31 - 214ps - 0 
+* Sum - 314ps
+* Output matches expected result
+
+* b) 0x55555555 + 0x00000000
+* C30 - 373ps - 0
+* C31 - 214ps - 0 
+* Sum - 451ps
+* Output matches expected result
+
+* c) 0x00000000 + 0x55555555
+* C30 - 372ps - 0
+* C31 - 214ps - 0 
+* Sum - 452
+* Output matches expected result
+
+* d) 0x55555555 + 0x55555555
+* C30 - 130ps - 1
+* C31 - 214ps - 0 
+* Sum - 314
+* Output matches expected result
+
+* e) 0xFFFFFFFF + 0xFFFFFFFF
+* C30 - 130ps - 1
+* C31 - 95ps - 1
+* Sum - 320ps
+* Output = 0xFFFFFFFE
+
+* f) 0xAAAAAAAA + 0x00000000
+* C30 - 237ps - 0
+* C31 - 351ps - 0
+* Sum - 452ps
+* Output matches expected result
+
+* g) 0x00000000 + 0xAAAAAAAA
+* C30 - 237ps - 0
+* C31 - 351ps - 0
+* Sum - 452ps
+* Output matches expected result
+
+* h) 0xAAAAAAAA + 0xAAAAAAAA
+* C30 - 237ps - 0
+* C31 - 94ps - 1
+* Sum - 314ps 
+* Output = 0x55555554
+
+* i) 0x00000001 + 0xFFFFFFFF
+* C30 - 4.08ns - 1
+* C31 - 4.17ns - 1
+* Sum - 4.22ns 
+* Output = 0x00000000
+
+* j) 0xFFFFFFFF + 0x00000001
+* C30 - 4.08ns - 1
+* C31 - 4.17ns - 1
+* Sum - 4.224 ns 
+* Output = 0x00000000
+
+*******************************************************************************
+
 Wa a[31:0] nrz(0, 5, 200ns, 0ns, 0.001ns, 0.001ns)
 + 0x00000000 0x55555555 0x00000000 0x55555555 0xFFFFFFFF 0x0AAAAAAA 0x00000000 0x0AAAAAAA 0x00000001 0xFFFFFFFF
+   
+
 
 * Input b[31:0]
 Wb b[31:0] nrz(0, 5, 200ns, 0ns, 0.001ns, 0.001ns)
-+ 0x00000000 0x00000000 0x55555555 0x55555555 0xFFFFFFFF 0x00000000 0x0AAAAAAA 0x0AAAAAAA 0xFFFFFFFF 0x00000001
-
-
++ 0x00000000 0x00000000 0x55555555 0x55555555 0xFFFFFFFF 0x00000000 0x0AAAAAAA 0x0AAAAAAA 0xFFFFFFFF 0x00000001   
 
 .tran 2000ns
 
