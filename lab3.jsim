@@ -38,7 +38,15 @@
 
 *******************************************************************************
 * 32-bit Adder
-* insert explanation here
+* This subcircuit is constructed by chaining 32 instances of a full-adder 
+* subcircuit (`fa`). Each full adder computes:
+*   - sum of one bit from A and B
+*   - plus a carry-in
+* producing a sum bit and a carry-out.
+*
+* The carry-out of each stage is connected to the carry-in of the next stage,
+* creating a ripple-carry chain. 
+* This produces the 32-bit sum `sum[31:0]`.
 *******************************************************************************
 
 .subckt add32 a[31:0] b[31:0] c_in0 sum[31:0] c_out[31:30]
