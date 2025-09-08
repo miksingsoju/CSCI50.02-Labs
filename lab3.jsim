@@ -12,18 +12,19 @@
 *******************************************************************************
 * Nand Definition of a Full-Adder
 * By definition
-* Full Adder Sum = X ⊕ Y ⊕ Z, where Z is the Carry in
-* X ⊕ Y= X!Y + !XY
-* X ⊕ Y = !(!(X!Y)!(!XY))                 !NOTE A + B = (!A NAND !B)
-* X ⊕ Y ⊕ CIn = !(!(X!Y)!(!XY)) ⊕ CIn    !For Simplification Purposes we will simplify X ⊕ Y as S the Sum 
-* S ⊕ Z = S!Z + !SZ
-* S ⊕ Z = S!Z + !SZ
-* S ⊕ Z = !(!(S!Z)!(!SZ))
+* Full Adder Sum = X â Y â Z, where Z is the Carry in
+* X â Y= X!Y + !XY
+* X â Y = !(!(X!Y)!(!XY))                 !NOTE A + B = (!A NAND !B)
+* X â Y â CIn = !(!(X!Y)!(!XY)) â CIn    !For Simplification Purposes we will simplify X â Y as S the Sum 
+* S â Z = S!Z + !SZ
+* S â Z = S!Z + !SZ
+* S â Z = !(!(S!Z)!(!SZ))
 * Here you can either use this already to configure the subckt but we still graphed it's circuit 
 * and based the inputs outputs of each Nand There for double-checking
 *******************************************************************************
 
 .subckt fa  A B Cin Sum Cout
+
     Xnand1 A B out1 nand2
     Xnand2 A out1 out2 nand2
     Xnand3 B out1 out3 nand2
@@ -33,6 +34,7 @@
     Xnand7 out5 Cin out7 nand2
     Xnand8 out6 out7 Sum nand2
     Xnand9 out1 out5 Cout nand2
+
 .ends
 
 *******************************************************************************
@@ -51,7 +53,7 @@
 *******************************************************************************
 * 32-bit Ripple-Carry Adder using RCA4 blocks
 *******************************************************************************
-.subckt add32 a[31:0] b[31:0] c_in0 sum[31:0] c_out[31:30]
+.subckt RCA4add32 a[31:0] b[31:0] c_in0 sum[31:0] c_out[31:30]
 
     * Lower 4 bits (0-3)
     Xrca0 a[3:0]   b[3:0]   c_in0    sum[3:0]   c4   rca4
@@ -150,15 +152,44 @@
 
     * this subcircuit outputs the last sum, sum31 
     XFa31 a31 b31 c_out30 sum31 c_out[31] fa
+
 .ends
 
+
+*******************************************************************************
+* Another 32-bit Ripple-Carry Adder 
+* This subcircuit is constructed by chaining 32 instances of a full-adder 
+* subcircuit (`fa`). Each full adder computes:
+*   - sum of one bit from A and B
+*   - plus a carry-in
+* producing a sum bit and a carry-out.
+*
+* The carry-out of each stage is connected to the carry-in of the next stage,
+* creating a ripple-carry chain. 
+* This produces the 32-bit sum `sum[31:0]`.
+*
+*The trick is that these full adders are created through an iteration 
+*where it takes in a b c sum c+1 then a1 b1 c+1 sum c+2
+*the carry outs are automatically connected to the next iteration's carry in
+*******************************************************************************
+
+.subckt add32i a[31:0] b[31:0] c_in0 sum[31:0] c_out[31:30]
+
+    *connect first carry in to c[0]
+    .connect c[0] c_in0
+
+    *iterating the instantiation
+    XFa[0:30] a[0:30] b[0:30] c[0:30] sum[0:30] c[1:31] fa
+
+    *seperates the last bit to be expressed manually
+    XFa31 a31 b31 c31 sum31 c32 fa
+
+.ends
 *******************************************************************************
 * Instantiate subcircuit add32
 *******************************************************************************
 
 Xsum a[31:0] b[31:0] 0 sum[31:0] c31 c30 add32
-
-
 
 *******************************************************************************
 * These are the Digital Waveforms for testing
@@ -253,10 +284,10 @@ Wb b[31:0] nrz(0, 5, 200ns, 0ns, 0.001ns, 0.001ns)
 *******************************************************************************
 * Analysis
 * 
-* Most additions (a–h) settle quickly: 300–450 ps total delay.*
-* These cases either don’t generate carries or the carry propagates only a short distance before dying out.
+* Most additions (aâh) settle quickly: 300â450 ps total delay.*
+* These cases either donât generate carries or the carry propagates only a short distance before dying out.
 *
 * The last two items (i-j) require the carry to ripple through all 32 stages.
 *
-* Delay is ~4.1–4.2 ns, which is approximately 10× slower than the other cases.
+* Delay is ~4.1â4.2 ns, which is approximately 10Ã slower than the other cases.
 ********************************************************************************
