@@ -35,6 +35,55 @@
     Xnand9 out1 out5 Cout nand2
 .ends
 
+*******************************************************************************
+* 4-bit Adder
+* Constructed by chaining 4 full adders (fa).
+*******************************************************************************
+.subckt add4 a[3:0] b[3:0] c_in sum[3:0] c_out
+
+    Xfa0 a0 b0 c_in    sum0 c1 fa
+    Xfa1 a1 b1 c1      sum1 c2 fa
+    Xfa2 a2 b2 c2      sum2 c3 fa
+    Xfa3 a3 b3 c3      sum3 c_out fa
+
+.ends
+
+*******************************************************************************
+* 32-bit Ripple-Carry Adder using RCA4 blocks
+*******************************************************************************
+.subckt add32 a[31:0] b[31:0] c_in0 sum[31:0] c_out[31:30]
+
+    * Lower 4 bits (0-3)
+    Xrca0 a[3:0]   b[3:0]   c_in0    sum[3:0]   c4   rca4
+
+    * Bits 4-7
+    Xrca1 a[7:4]   b[7:4]   c4       sum[7:4]   c8   rca4
+
+    * Bits 8-11
+    Xrca2 a[11:8]  b[11:8]  c8       sum[11:8]  c12  rca4
+
+    * Bits 12-15
+    Xrca3 a[15:12] b[15:12] c12      sum[15:12] c16  rca4
+
+    * Bits 16-19
+    Xrca4 a[19:16] b[19:16] c16      sum[19:16] c20  rca4
+
+    * Bits 20-23
+    Xrca5 a[23:20] b[23:20] c20      sum[23:20] c24  rca4
+
+    * Bits 24-27
+    Xrca6 a[27:24] b[27:24] c24      sum[27:24] c28  rca4
+
+    * Top 4 bits (28-31)
+    Xrca7 a[31:28] b[31:28] c28      sum[31:28] c_out[31] rca4
+
+    * Note: c_out[30] = carry into MSB (from bit 30 stage)
+    *       c_out[31] = final carry out
+    *       Here, c_out[30] = c28 (carry from bit 28-30 into bit 31)
+    *       So expose both:
+    .connect c_out[30] c28
+
+.ends
 
 *******************************************************************************
 * 32-bit Adder
@@ -116,9 +165,6 @@ Xsum a[31:0] b[31:0] 0 sum[31:0] c31 c30 add32
 *******************************************************************************
 
 * Input a[31:0]
-
-
-
 Wa a[31:0] nrz(0, 5, 200ns, 0ns, 0.001ns, 0.001ns)
 + 0x00000000 0x55555555 0x00000000 0x55555555 0xFFFFFFFF 0x0AAAAAAA 0x00000000 0x0AAAAAAA 0x00000001 0xFFFFFFFF
 
