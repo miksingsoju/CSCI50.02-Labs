@@ -41,7 +41,7 @@
 * 4-bit Adder
 * Constructed by chaining 4 full adders (fa).
 *******************************************************************************
-.subckt add4 a[3:0] b[3:0] c_in sum[3:0] c_out
+.subckt rca4 a[3:0] b[3:0] c_in sum[3:0] c_out
 
     Xfa0 a0 b0 c_in    sum0 c1 fa
     Xfa1 a1 b1 c1      sum1 c2 fa
