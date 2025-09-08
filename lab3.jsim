@@ -175,14 +175,13 @@
 
 .subckt add32i a[31:0] b[31:0] c_in0 sum[31:0] c_out[31:30]
 
-    *connect first carry in to c[0]
+    *use the .connect from quickref to connect the inputs and outputs
     .connect c[0] c_in0
-
-    *iterating the instantiation
     XFa[0:30] a[0:30] b[0:30] c[0:30] sum[0:30] c[1:31] fa
-
-    *seperates the last bit to be expressed manually
     XFa31 a31 b31 c31 sum31 c32 fa
+
+    .connect c_out[30] c[31]
+    .connect c_out[31] c32   
 
 .ends
 *******************************************************************************
