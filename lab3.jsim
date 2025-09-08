@@ -177,6 +177,8 @@
 
     *use the .connect from quickref to connect the inputs and outputs
     .connect c[0] c_in0
+
+    *iterate the full adders
     XFa[0:30] a[0:30] b[0:30] c[0:30] sum[0:30] c[1:31] fa
     XFa31 a31 b31 c31 sum31 c32 fa
 
@@ -188,7 +190,7 @@
 * Instantiate subcircuit add32
 *******************************************************************************
 
-Xsum a[31:0] b[31:0] 0 sum[31:0] c31 c30 add32
+Xsum a[31:0] b[31:0] 0 sum[31:0] c31 c30 add32i
 
 *******************************************************************************
 * These are the Digital Waveforms for testing
