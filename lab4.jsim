@@ -25,11 +25,11 @@
 .ends
 
 .subckt add32 a[31:0] b[31:0] cin0 sum[31:0] cout[31:30]
-  ********
-  * Replace these comments with your code.
-  * Strictly follow the order of the operands here, or you may have trouble
-  * for later circuits!
-  ********
+  .connect c[0] cin0
+  XFa[0:30] a[0:30] b[0:30] c[0:30] sum[0:30] c[1:31] fa
+  XFa31 a[31] b[31] c[31] sum[31] c[32] fa
+  .connect cout[30] c[31]
+  .connect cout[31] c[32]
 .ends
 
 *******************************************************************************
