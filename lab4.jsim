@@ -9,27 +9,20 @@
 .include "nominal.jsim"
 .include "stdcell.jsim"
 
-*******************************************************************************
-* Plug-in your full adder and 32-bit ripple-carry adder subcircuits here.
-*******************************************************************************
 .subckt fa a b c_in sum c_out
-  Xnand1 a b out1 nand2
-  Xnand2 a out1 out2 nand2
-  Xnand3 b out1 out3 nand2
-  Xnand4 out2 out3 out4 nand2
-  Xnand5 out4 c_in out5 nand2
-  Xnand6 out4 out5 out6 nand2
-  Xnand7 out5 c_in out7 nand2
-  Xnand8 out6 out7 sum nand2
-  Xnand9 out1 out5 c_out nand2
+    Xnand1 a b out1 nand2
+    Xnand2 a out1 out2 nand2
+    Xnand3 b out1 out3 nand2
+    Xnand4 out2 out3 out4 nand2
+    Xnand5 out4 c_in out5 nand2
+    Xnand6 out4 out5 out6 nand2
+    Xnand7 out5 c_in out7 nand2
+    Xnand8 out6 out7 sum nand2
+    Xnand9 out1 out5 c_out nand2
 .ends
 
 .subckt add32 a[31:0] b[31:0] cin0 sum[31:0] cout[31:30]
-  .connect c[0] cin0
-  XFa[0:30] a[0:30] b[0:30] c[0:30] sum[0:30] c[1:31] fa
-  XFa31 a[31] b[31] c[31] sum[31] c[32] fa
-  .connect cout[30] c[31]
-  .connect cout[31] c[32]
+  Xfa[0:31] a[0:31] b[0:31] c_in0 c_out[0:30] sum[0:31] c_out[0:31] fa
 .ends
 
 *******************************************************************************
