@@ -29,16 +29,22 @@
 .ends
 
 .subckt add32 a[31:0] b[31:0] cin0 sum[31:0] cout[31:30]
-  Xfa[0:31] a[0:31] b[0:31] c_in0 c_out[0:30] sum[0:31] c_out[0:31] fa
+  Xfa[0:31] a[0:31] b[0:31] cin0 c_out[0:30] sum[0:31] c_out[0:31] fa
 .ends
 
 *******************************************************************************
 * Your new counter32 subcircuit code should go here.
 *******************************************************************************
 .subckt counter32 reset a[31:0] f[31:0] clk
-  ********
-  * Replace these comments with your code.
-  ********
+  * Compute next value = reg + incr
+  Xadder f[31:0] a[31:0] 0 sum[31:0] dummy[31:30] add32
+  .connect 0 dummy[31:30]
+
+  * Reset mux: chooses between sum and 0
+  Xmux[0:31] reset#32 sum[0:31] 0#32 d[0:31] mux2
+
+  * 32-bit register to hold counter value
+  Xdreg[0:31] d[0:31] clk#32 f[0:31] dreg
 .ends
 
 *******************************************************************************
@@ -117,7 +123,7 @@ Wincr incr[31:0] nrz(0, 5, 50ns, 0ns, 0.001ns, 0.001ns)
 .plot sd(reg[31:0])
 
 *******************************************************************************
-Guide Questions
+* Guide Questions
 *******************************************************************************
 
 
