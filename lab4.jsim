@@ -37,8 +37,10 @@
 *******************************************************************************
 .subckt counter32 reset a[31:0] f[31:0] clk
   * Compute next value = reg + incr
-  Xadder f[31:0] a[31:0] 0 sum[31:0] dummy[31:30] add32
-  .connect 0 dummy[31:30]
+  Xadder f[31:0] a[31:0] 0 sum[31:0] c_out[31:30] add32
+
+  * Connect carry outs to ground because they will not be used.
+  .connect 0 c_out[31:30]
 
   * Reset mux: chooses between sum and 0
   Xmux[0:31] reset#32 sum[0:31] 0#32 d[0:31] mux2
