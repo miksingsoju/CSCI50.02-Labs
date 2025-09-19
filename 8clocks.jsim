@@ -2,6 +2,8 @@
 * start with 10ns period
 * for CSCI 50.02, pulse ranges have been changed to [0, 5]
 Vclk1 clk1 0 pulse(0,5,4.9ns,.1ns,.1ns,4.9ns)
+Vclk100 clk100 0 pulse(0,5,2.9ns,.1ns,.1ns,2.9ns)
+
 Vclk2 clk2 0 pulse(0,5,9.9ns,.1ns,.1ns,9.9ns)
 Vclk3 clk3 0 pulse(0,5,19.9ns,.1ns,.1ns,19.9ns)
 Vclk4 clk4 0 pulse(0,5,39.9ns,.1ns,.1ns,39.9ns)

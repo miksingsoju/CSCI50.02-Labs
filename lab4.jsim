@@ -37,15 +37,20 @@
 *******************************************************************************
 .subckt counter32 reset a[31:0] f[31:0] clk
   * Compute next value = reg + incr
+  * This outputs garbage at the start because there is no value from the register
   Xadder f[31:0] a[31:0] 0 sum[31:0] c_out[31:30] add32
 
   * Connect carry outs to ground because they will not be used.
   .connect 0 c_out[31:30]
 
   * Reset mux: chooses between sum and 0
+  * if reset is 0, the sum will be fed into the register
+  * if reset is 1, 0 will be fed into the register
+  * This allows for an initial value, 0 to initialize the counter
   Xmux[31:0] reset#32 sum[31:0] 0#32 d[31:0] mux2
 
   * 32-bit register to hold counter value
+  * This only gives an output at the rising edge of the clock
   Xdreg[31:0] d[31:0] clk#32 f[31:0] dreg
 .ends
 
@@ -88,7 +93,7 @@
 * We pass it a single-bit reset signal, a 32-bit increment value, a 32-bit
 * register, and a clock signal (we just used the JSim-predefined clk1).
 *******************************************************************************
-Xcounter32 reset incr[31:0] reg[31:0] clk2 counter32
+Xcounter32 reset incr[31:0] reg[31:0] clk1 counter32
 
 *******************************************************************************
 * This "reset" waveform sets up a reset signal that has a delayed start of 15ns
@@ -165,5 +170,15 @@ Wincr incr[31:0] nrz(0, 5, 50ns, 0ns, 0.001ns, 0.001ns)
 *******************************************************************************
 * b.  What is stopping you from using a super-fast clock to make a super-fast
 *     counter?
-*     We need evidence for this
+*     We created a faster clock, clk100, which was about 50% faster than clk1. 
+*     At first the counter appeared to work correctly when 
+*     incrementing by 1 or 3. However, once the increment 
+*     value was changed to a decrement, 
+*     the register output no longer followed the expected sequence. 
+*     Instead of transitioning from 30 down to 29, it jumped to 
+*     values like –33,554,403, 33,554,404, and 33,554,405. 
+*     This shows that with the faster clock, the counter was 
+*     latching unstable intermediate values, because the 
+*     combinational adder and multiplexer logic had not 
+*     fully settled before the next clock edge.
 *******************************************************************************
