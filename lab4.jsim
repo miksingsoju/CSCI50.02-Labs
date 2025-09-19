@@ -43,10 +43,10 @@
   .connect 0 c_out[31:30]
 
   * Reset mux: chooses between sum and 0
-  Xmux[0:31] reset#32 sum[0:31] 0#32 d[0:31] mux2
+  Xmux[31:0] reset#32 sum[31:0] 0#32 d[31:0] mux2
 
   * 32-bit register to hold counter value
-  Xdreg[0:31] d[0:31] clk#32 f[0:31] dreg
+  Xdreg[31:0] d[31:0] clk#32 f[31:0] dreg
 .ends
 
 *******************************************************************************
@@ -88,7 +88,7 @@
 * We pass it a single-bit reset signal, a 32-bit increment value, a 32-bit
 * register, and a clock signal (we just used the JSim-predefined clk1).
 *******************************************************************************
-Xcounter32 reset incr[31:0] reg[31:0] clk1 counter32
+Xcounter32 reset incr[31:0] reg[31:0] clk2 counter32
 
 *******************************************************************************
 * This "reset" waveform sets up a reset signal that has a delayed start of 15ns
@@ -115,7 +115,7 @@ Wincr incr[31:0] nrz(0, 5, 50ns, 0ns, 0.001ns, 0.001ns)
 + 0 1 3 -1
 
 *******************************************************************************
-* Plot our reset waveform, our incr waveform, clk1, and your 32-bit register.
+* Plot our reset waveform, our incr waveform, clk2, and your 32-bit register.
 * Note: sd() displays a range of nodes as a signed decimal (instead of hex)
 *******************************************************************************
 .tran 300ns
@@ -134,12 +134,33 @@ Wincr incr[31:0] nrz(0, 5, 50ns, 0ns, 0.001ns, 0.001ns)
 
 * a.  Explain the behavior of the 32-bit register output lines, reg[31:0], as it is
 *     incrementing, decrementing, and resetting.
-*  * * * In particular, explain the significant delay between when the reset/incr[31:0] values
-*        change and when the output displays an updated value.
+*     - 
+*
+*  * * * *  In particular, explain the significant delay between when the reset/incr[31:0] values
+*           change and when the output displays an updated value.
+*           - It takes one clock cycle
+*******************************************************************************
+
+
+*******************************************************************************
+
+* a.  Explain the behavior of the 32-bit register output lines, reg[31:0], as it is
+*     incrementing, decrementing, and resetting.
+*     - 
+*
+*     In particular, explain the significant delay between when the reset/incr[31:0] values
+*     change and when the output displays an updated value.
+*       - There is a green bar of death at the start in the output before the reset because:
+*       - the output is dependent on multiplexer, which also waits on the 
+*       - add32, which takes an input from the register, but there is no initial value for f[31:0]
+*       - which will output garbage
+*
+*       - As for the delay when the incr/reset values change, 
 *******************************************************************************
 
 
 *******************************************************************************
 * b.  What is stopping you from using a super-fast clock to make a super-fast
 *     counter?
+*     We need evidence for this
 *******************************************************************************
