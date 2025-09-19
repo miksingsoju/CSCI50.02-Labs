@@ -138,9 +138,11 @@ Wincr incr[31:0] nrz(0, 5, 50ns, 0ns, 0.001ns, 0.001ns)
 *     - The sum is passed through the multiplexer (if reset is not asserted) 
 *     - and then stored back into the register. As a result, the output value 
 *     - increases by the amount specified on incr[31:0] every clock cycle.
+*
 *     - If incr[31:0] is negative (in two’s complement form), 
 *     - the adder effectively subtracts that value instead of adding, 
 *     - so the register output decreases accordingly. 
+*
 *     - When the reset signal is asserted, the multiplexer selects the zero input (0#32) 
 *     - instead of the adder output. At the next clock edge, 
 *     - the register is cleared to zero, regardless of what the increment input is.
@@ -148,12 +150,15 @@ Wincr incr[31:0] nrz(0, 5, 50ns, 0ns, 0.001ns, 0.001ns)
 *     In particular, explain the significant delay between when the reset/incr[31:0] values
 *     change and when the output displays an updated value.
 *       - There is a green bar of death at the start in the output before the reset because:
-*       - the output is dependent on multiplexer, which also waits on the 
+*       - the output is dependent on the multiplexer, which also waits on the 
 *       - add32, which takes an input from the register, but there is no initial value for f[31:0]
 *       - which will output garbage
 *
 *       - As for the delay when the incr/reset values change, 
-*       - The new value must 
+*       - The new increment value must propagate through the 32-bit adder.
+*       - The adder’s result must then propagate through the multiplexer.
+*       - The selected input becomes the D-input of the register.
+*       - The register only updates its Q-output (reg[31:0]) on the next active clock edge.
 *******************************************************************************
 
 
