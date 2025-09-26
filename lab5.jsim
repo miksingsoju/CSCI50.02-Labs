@@ -1,0 +1,129 @@
+*******************************************************************************
+* LAB #5
+* - Buenaobra, John Aldrich
+* - Cayago, Mikylla Cherrizse
+* - Sy, Mishka
+*******************************************************************************
+
+.include "8clocks.jsim"
+.include "nominal.jsim"
+.include "stdcell.jsim"
+
+.subckt fa a b c_in sum c_out
+  Xnand1 a b out1 nand2
+  Xnand2 a out1 out2 nand2
+  Xnand3 b out1 out3 nand2
+  Xnand4 out2 out3 out4 nand2
+
+  * this uses the carry_in as one of the inputs
+  Xnand5 out4 c_in out5 nand2
+
+  Xnand6 out4 out5 out6 nand2
+  Xnand7 out5 c_in out7 nand2
+
+  * This outputs the sum
+  Xnand8 out6 out7 sum nand2
+
+  * This outputs the carry out
+  Xnand9 out1 out5 c_out nand2
+.ends
+
+.subckt add32 a[31:0] b[31:0] cin0 sum[31:0] cout[31:30]
+  Xfa[0:31] a[0:31] b[0:31] cin0 c_out[0:30] sum[0:31] c_out[0:31] fa
+.ends
+
+*******************************************************************************
+* Lab 5: Subtractor and Comparator
+*******************************************************************************
+.subckt as32 a[31:0] b[31:0] op0 fas[31:0] n v z
+*   insert code here
+.ends
+
+.subckt cmp32 n v z op[2:1] fcmp[31:0]
+*   insert code here
+.ends
+
+*******************************************************************************
+* Instantiate as32 + cmp32 chain
+*******************************************************************************
+
+Xas32 a[31:0] b[31:0] op0 fas[31:0] n v z as32
+Xcmp32 n v z op[2:1] fcmp[31:0] cmp32
+
+*******************************************************************************
+* Plot 
+*******************************************************************************
+.tran 300ns
+.plot op0
+.plot op1
+.plot op2
+.plot n
+.plot v
+.plot z
+.plot fcmp0
+
+*******************************************************************************
+* Test Cases for Addition/Subtraction
+*******************************************************************************
+
+* Test 1: 0 + 0
+* Test 2: 0x55555555 + 0
+* Test 3: 0 + 0x55555555
+* Test 4: 0x55555555 + 0x55555555
+* Test 5: -1 + -1
+* Test 6: 0 – 0
+* Test 7: 0 – -1
+* Test 8: 0xAAAAAAAA + 0
+* Test 9: 0 + 0xAAAAAAAA
+* Test 10: 0xAAAAAAAA + 0xAAAAAAAA
+* Test 11: 1 + -1
+* Test 12: -1 + 1
+* Test 13: 0x80000000 + 0x80000000
+* Test 14: -1 – -1
+
+*******************************************************************************
+* Test Cases for Comparison
+*******************************************************************************
+
+* Test 1: 2 with -3
+* Test 2: 0x80000000 with 2
+* Test 3: 3 with 5
+* Test 4: 0x7FFFFFFF with -2
+* Test 5: 3 with 3
+
+*******************************************************************************
+* Critical Path Analysis
+*******************************************************************************
+
+*******************************************************************************
+
+* insert analysis here
+*******************************************************************************
+
+
+*******************************************************************************
+* Your new counter32 subcircuit code should go here.
+*******************************************************************************
+.subckt counter32 reset a[31:0] f[31:0] clk
+  * Compute next value = reg + incr
+  * This outputs garbage at the start because there is no value from the register
+  Xadder f[31:0] a[31:0] 0 sum[31:0] c_out[31:30] add32
+
+  * Connect carry outs to ground because they will not be used.
+  .connect 0 c_out[31:30]
+
+  * Reset mux: chooses between sum and 0
+  * if reset is 0, the sum will be fed into the register
+  * if reset is 1, 0 will be fed into the register
+  * This allows for an initial value, 0 to initialize the counter
+  Xmux[31:0] reset#32 sum[31:0] 0#32 d[31:0] mux2
+
+  * 32-bit register to hold counter value
+  * This only gives an output at the rising edge of the clock
+  Xdreg[31:0] d[31:0] clk#32 f[31:0] dreg
+.ends
+
+
+
+
+
