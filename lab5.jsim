@@ -40,7 +40,18 @@
 .ends
 
 .subckt cmp32 n v z op[2:1] fcmp[31:0]
-*   insert code here
+  * fcmp[0] = result bit, others grounded
+  .connect 0 fcmp[1:31]
+
+  * A = B: z
+  * A < B: n XOR v (for signed comparison)
+  Xxor n v a_lessthan_b xor2
+
+  * Select between equality check (z) and less-than check (a_lessthan_b)
+  Xmux1 op1 z a_lessthan_b temp1 mux2
+
+  * Select final result based on op2
+  Xmux2 op2 a_lessthan_b temp1 fcmp0 mux2
 .ends
 
 *******************************************************************************
