@@ -36,7 +36,13 @@
 * Lab 5: Subtractor and Comparator
 *******************************************************************************
 .subckt as32 a[31:0] b[31:0] op0 fas[31:0] n v z
-*   insert code here
+  Xinv[0:31] b[0:31] b_inv[0:31] inv
+  Xmux[0:31] b[0:31] b_inv[0:31] op0 b_sel[0:31] mux2
+
+  Xadd a[31:0] b_sel[31:0] op0 fas[31:0] cout[31:30] add32
+  Xneg fas[31] n
+  Xzero 
+  Xof cout[31] cout[30] v xor2
 .ends
 
 .subckt cmp32 n v z op[2:1] fcmp[31:0]
