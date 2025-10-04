@@ -38,12 +38,19 @@
 * Lab 5: Subtractor and Comparator
 *******************************************************************************
 .subckt as32 a[31:0] b[31:0] op0 fas[31:0] n v z
+  *inverts b
   Xinv[0:31] b[0:31] b_inv[0:31] inverter
-  Xmux[0:31] b[0:31] b_inv[0:31] op0 b_sel[0:31] mux2
 
+  *chooses between b or inv b depending on op code
+  Xmux[0:31] op#32 b[0:31] b_inv[0:31] b_sel[0:31] mux2
+
+  *adder/subtractor
   Xadd a[31:0] b_sel[31:0] op0 fas[31:0] cout[31:30] add32
-  Xneg fas[31] 1 0 n mux2 
 
+  *uses msb to determine if negative
+  Xneg fas[31] 0 1 n mux2 
+
+  *32 input or using nor/nands
   Xnor0 fas[0:3] n0 nor4
   Xnor1 fas[4:7] n1 nor4
   Xnor2 fas[8:11] n2 nor4
@@ -58,7 +65,7 @@
 
   Xnor9 m1 m2 n nand2
 
-
+  *Overflow determined using msb and next msb xor
   Xof cout[31] cout[30] v xor2
 .ends
 
