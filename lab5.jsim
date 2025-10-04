@@ -38,12 +38,27 @@
 * Lab 5: Subtractor and Comparator
 *******************************************************************************
 .subckt as32 a[31:0] b[31:0] op0 fas[31:0] n v z
-  Xinv[0:31] b[0:31] b_inv[0:31] inv
+  Xinv[0:31] b[0:31] b_inv[0:31] inverter
   Xmux[0:31] b[0:31] b_inv[0:31] op0 b_sel[0:31] mux2
 
   Xadd a[31:0] b_sel[31:0] op0 fas[31:0] cout[31:30] add32
-  Xneg fas[31] n
-  Xzero 
+  Xneg fas[31] 1 0 n mux2 
+
+  Xnor0 fas[0:3] n0 nor4
+  Xnor1 fas[4:7] n1 nor4
+  Xnor2 fas[8:11] n2 nor4
+  Xnor3 fas[12:15] n3 nor4
+  Xnor4 fas[16:19] n4 nor4
+  Xnor5 fas[20:23] n5 nor4
+  Xnor6 fas[24:27] n6 nor4
+  Xnor7 fas[28:31] n7 nor4
+
+  Xnand1 n[0:3] m1 nand4
+  Xnand2 n[4:7] m2 nand4
+
+  Xnor9 m1 m2 n nand2
+
+
   Xof cout[31] cout[30] v xor2
 .ends
 
