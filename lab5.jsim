@@ -31,7 +31,7 @@
 
 * 32-bit adder
 .subckt add32 a[31:0] b[31:0] cin0 sum[31:0] cout[31:30]
-  Xfa[0:31] a[0:31] b[0:31] cin0 c_out[0:30] sum[0:31] c_out[0:31] fa
+  Xadder a[31:0] b[31:0] cout[30:0] cin0 sum[31:0] cout[31:0] fa
 .ends
 
 *******************************************************************************
@@ -39,18 +39,18 @@
 *******************************************************************************
 .subckt as32 a[31:0] b[31:0] op0 fas[31:0] n v z
   *inverts b
-  Xinv[0:31] b[0:31] b_inv[0:31] inverter
+  Xinv b[31:0] b_inv[31:0] inverter
 
   *chooses between b or inv b depending on op code
-  Xmux[0:31] op#32 b[0:31] b_inv[0:31] b_sel[0:31] mux2
+  Xmux op0#32 b[31:0] b_inv[31:0] b_sel[31:0] mux2
 
   *adder/subtractor
   Xadd a[31:0] b_sel[31:0] op0 fas[31:0] cout[31:30] add32
 
-  *uses msb to determine if negative
-  Xneg fas[31] 0 1 n mux2 
+  *negative flag
+  .connect fas[31] n 
 
-  *32 input or using nor/nands
+  *zero flag
   Xnor0 fas[0:3] n0 nor4
   Xnor1 fas[4:7] n1 nor4
   Xnor2 fas[8:11] n2 nor4
@@ -63,9 +63,9 @@
   Xnand1 n[0:3] m1 nand4
   Xnand2 n[4:7] m2 nand4
 
-  Xnor9 m1 m2 n nand2
+  Xnor9 m1 m2 z nor2
 
-  *Overflow determined using msb and next msb xor
+  *overflow flag
   Xof cout[31] cout[30] v xor2
 .ends
 
@@ -88,20 +88,12 @@
 * Instantiate as32 + cmp32 chain
 *******************************************************************************
 
-Xas32 a[31:0] b[31:0] op0 fas[31:0] n v z as32
-Xcmp32 n v z op[2:1] fcmp[31:0] cmp32
+.subckt as_cmp32 a[31:0] b[31:0] op[2:0] fcmp[31:0] fas[31:0] n v z
+  Xas32 a[31:0] b[31:0] op[0] fas[31:0] n v z as32
+  Xcmp32 n v z op[2:1] fcmp[31:0] cmp32
+.ends
 
-*******************************************************************************
-* Plot 
-*******************************************************************************
-.tran 300ns
-.plot op0
-.plot op1
-.plot op2
-.plot n
-.plot v
-.plot z
-.plot fcmp0
+Xascmp a[31:0] b[31:0] op[2:0] fcmp[31:0] fas[31:0] n v z as_cmp32
 
 *******************************************************************************
 * 14 Test Cases for Addition/Subtraction 
@@ -254,6 +246,21 @@ Wallcomp_op1 op1 nrz(0, 15, 50ns, 700ns, 0.001ns, 0.001ns)
 Wallcomp_op2 op2 nrz(0, 15, 50ns, 700ns, 0.001ns, 0.001ns)
 + 0 0 0 0 0 1 1 1 1 1 0 0 0 0 0
 
+
+*******************************************************************************
+* Plot 
+*******************************************************************************
+.tran 300ns
+.plot a[31:0]
+.plot op0
+.plot op[2:1]
+.plot b[31:0]
+.plot fas[31:0]
+.plot fcmp[31:0]
+.plot n
+.plot v
+.plot z
+
 *******************************************************************************
 * Critical Path Analysis
 *******************************************************************************
@@ -262,6 +269,14 @@ Wallcomp_op2 op2 nrz(0, 15, 50ns, 700ns, 0.001ns, 0.001ns)
 
 * insert analysis here
 *******************************************************************************
+
+
+
+
+
+
+
+
 
 
 
