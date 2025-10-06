@@ -155,6 +155,7 @@ Wop op[2:0] nrz(0, 5, 20ns, 0ns, 0.001ns, 0.001ns)
 
 * Total Gate Delays
 
+* FROM QUICK REF, these are the tPD:
 * Inverter : tPD = 0.02 ns
 * MUX2 (mux2): tPD = 0.02 ns
 * NAND2 (nand2): tPD = 0.01 ns
@@ -162,16 +163,15 @@ Wop op[2:0] nrz(0, 5, 20ns, 0ns, 0.001ns, 0.001ns)
 
 * FA tPD(carry-out) = 0.02 ns
 * FA tPD(sum) = 0.03 ns
-*   32 FA = 32 * 0.02ns = 0.96ns
+*   32 FA = 31 * 0.02ns = 0.62ns
 
 * 1. Inverter - 0.02ns
 * 2. Mux2 - 0.02ns
-* 3. 32 FA - 0.96ns
+* 3. 32 FA - 0.62 + 0.03ns = 0.65ns
 * 4. XOR2 - 0.03ns
 * 5. Mux2 - 0.02ns
-* 
 
-
+* Total: 0.74ns
 
 *******************************************************************************
 
