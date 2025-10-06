@@ -75,13 +75,14 @@
 
   * A = B: z
   * A < B: n XOR v (for signed comparison)
-  Xxor n v a_lessthan_b xor2
+  Xxor n v a_less_than_b xor2
+  
+  *if op2 or op1 is 1, and their conditions are true raise 1
+  Xand1 op[2] a_less_than_b is_less_than and2
+  Xand2 op[1] z is_equal and2
 
-  * Select between equality check (z) and less-than check (a_lessthan_b)
-  Xmux1 op1 z a_lessthan_b temp1 mux2
-
-  * Select final result based on op2
-  Xmux2 op2 a_lessthan_b temp1 fcmp0 mux2
+  *final result, less than or equal
+  Xor1 is_less_than is_equal fcmp0 or2
 .ends
 
 *******************************************************************************
@@ -96,11 +97,15 @@
 Xascmp a[31:0] b[31:0] op[2:0] fcmp[31:0] fas[31:0] n v z as_cmp32
 
 Wa a[31:0] nrz(0, 5, 20ns, 0ns, 0.001ns, 0.001ns)
-+ 0 0x55555555 0 0x55555555 -1 0 0 0xAAAAAAAA 0 0xAAAAAAAA 1 -1 0x80000000 -1
++ 0 0x55555555 0 0x55555555 -1 0 0 0xAAAAAAAA 0 0xAAAAAAAA 1 -1 0x80000000 -1 
++ 2 2 2 0x80000000 0x80000000 0x80000000 3 3 3 0x7FFFFFFF 0x7FFFFFFF 0x7FFFFFFF 3 3 3
 Wb b[31:0] nrz(0, 5, 20ns, 0ns, 0.001ns, 0.001ns)
-+ 0 0 0x55555555 0x55555555 -1 0 -1 0 0xAAAAAAAA 0xAAAAAAAA -1 1 0x80000000 -1
++ 0 0 0x55555555 0x55555555 -1 0 -1 0 0xAAAAAAAA 0xAAAAAAAA -1 1 0x80000000 -1 
++ -3 -3 -3 2 2 2 5 5 5 -2 -2 -2 3 3 3
 Wop op[2:0] nrz(0, 5, 20ns, 0ns, 0.001ns, 0.001ns)
-+ 000 000 000 000 000 001 001 000 000 000 000 000 000 001
++ 000 000 000 000 000 001 001 000 000 000 000 000 000 001 
++ 011 101 111 011 101 111 011 101 111 011 101 111 011 101 111
+
 
 *******************************************************************************
 * Plot 
