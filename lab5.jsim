@@ -125,12 +125,36 @@ Wop op[2:0] nrz(0, 5, 20ns, 0ns, 0.001ns, 0.001ns)
 * End Node - fcmp [0] (comparison result output)
 
 * Path Components
+* 1. Input Inverter or MUX (subtraction)
+*   b[0] --> inverter --> b_inv[0] --> mux2 --> b_sel[0]
+*
+* 2. 32 bit Adder Carry Chain
+* a[0]/b_sel[0] --> FA 0 --> cout[0] ... 
+* --> FA30 --> cout[30] --> FA31 --> fas[31] and cout[31]
+*
+* 3. Flag Generation
+*   fas[31] --> n
+*   fas[0:31] --> z (8×NOR4 → 2×NAND4 → NOR2 → z)
+*   cout[31]/cout[30] --> XOR2 --> v
+*
+* 4. Comparator Logic
+*   n + v --> XOR2 --> a_lessthan_b
+*   z --> MUX selection
+*   Final MUX --> fcmp[0]
 
 * Critical Path Gates
+*   1 Inverter
+*   1 2-input MUX
+*   32 FUll Adders
+*   1 XOR2 (Overflow, Less Than)
+*   2 2-input MUX (Comparator)
 
 * Longest Logic Level
+* b[0] --> inverter --> mux2 --> FA0 --> FA1 --> ... --> FA31 
+* --> fas[31] --> n --> XOR2 --> a_lessthan_b --> MUX2 --> fcmp[0]
 
 * Total Gate Delays
+* 
 *******************************************************************************
 
 
