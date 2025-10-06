@@ -266,9 +266,19 @@ Wallcomp_op2 op2 nrz(0, 15, 50ns, 700ns, 0.001ns, 0.001ns)
 *******************************************************************************
 
 *******************************************************************************
+* Start Node - a[0] or b[0] (LSB inputs)
+* End Node - fcmp [0] (comparison result output)
 
-* insert analysis here
+* Path Components
+
+* Critical Path Gates
+
+* Longest Logic Level
+
+* Total Gate Delays
 *******************************************************************************
+
+
 
 
 
