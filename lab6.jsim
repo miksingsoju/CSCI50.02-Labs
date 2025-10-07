@@ -1,0 +1,172 @@
+*******************************************************************************
+* LAB #5
+* - Buenaobra, John Aldrich
+* - Cayago, Mikylla Cherrizse
+* - Sy, Mishka
+*******************************************************************************
+
+.include "8clocks.jsim"
+.include "nominal.jsim"
+.include "stdcell.jsim"
+
+*******************************************************************************
+
+* Full adder
+.subckt fa a b c_in sum c_out
+  Xnand1 a b out1 nand2
+  Xnand2 a out1 out2 nand2
+  Xnand3 b out1 out3 nand2
+  Xnand4 out2 out3 out4 nand2
+
+  * this uses the carry_in as one of the inputs
+  Xnand5 out4 c_in out5 nand2
+
+  Xnand6 out4 out5 out6 nand2
+  Xnand7 out5 c_in out7 nand2
+
+  * This outputs the sum
+  Xnand8 out6 out7 sum nand2
+
+  * This outputs the carry out
+  Xnand9 out1 out5 c_out nand2
+.ends
+
+*******************************************************************************
+
+* 32-bit adder
+.subckt add32 a[31:0] b[31:0] cin0 sum[31:0] cout[31:30]
+  Xadder a[31:0] b[31:0] cout[30:0] cin0 sum[31:0] cout[31:0] fa
+.ends
+
+*******************************************************************************
+
+* Adder/Subtractor
+.subckt as32 a[31:0] b[31:0] op0 fas[31:0] n v z
+  *inverts b
+  Xinv b[31:0] b_inv[31:0] inverter
+
+  *chooses between b or inv b depending on op code
+  Xmux op0#32 b[31:0] b_inv[31:0] b_sel[31:0] mux2
+
+  *adder/subtractor
+  Xadd a[31:0] b_sel[31:0] op0 fas[31:0] cout[31:30] add32
+
+  *negative flag
+  .connect fas[31] n 
+
+  *zero flag
+  Xnor0 fas[0:3] n0 nor4
+  Xnor1 fas[4:7] n1 nor4
+  Xnor2 fas[8:11] n2 nor4
+  Xnor3 fas[12:15] n3 nor4
+  Xnor4 fas[16:19] n4 nor4
+  Xnor5 fas[20:23] n5 nor4
+  Xnor6 fas[24:27] n6 nor4
+  Xnor7 fas[28:31] n7 nor4
+
+  Xnand1 n[0:3] m1 nand4
+  Xnand2 n[4:7] m2 nand4
+
+  Xnor9 m1 m2 z nor2
+
+  *overflow flag
+  Xof cout[31] cout[30] v xor2
+.ends
+
+*******************************************************************************
+
+* Comparator
+.subckt cmp32 n v z op[2:1] fcmp[31:0]
+  * fcmp[0] = result bit, others grounded
+  .connect 0 fcmp[1:31]
+
+  * A = B: z
+  * A < B: n XOR v (for signed comparison)
+  Xxor n v a_less_than_b xor2
+  
+  *if op2 or op1 is 1, and their conditions are true raise 1
+  Xand1 op[2] a_less_than_b is_less_than and2
+  Xand2 op[1] z is_equal and2
+
+  *final result, less than or equal
+  Xor1 is_less_than is_equal fcmp0 or2
+.ends
+
+*******************************************************************************
+
+* Bitwise Boolean
+.subckt bool32 a[31:0] b[31:0] op[3:0] fbool[31:0]
+*   insert code here
+.ends
+
+*******************************************************************************
+
+* 32-bit Shifter
+.subckt shift32 a[31:0] b[4:0] op[1:0] fshift[31:0]
+*   insert code here
+.ends
+
+*******************************************************************************
+
+* ALU
+.subckt alu32 a[31:0] b[31:0] alufn[5:0] f[31:0]
+*   insert code here
+.ends
+
+*******************************************************************************
+* Instantiate alu32 circuit
+*******************************************************************************
+
+Xalu a[31:0] b[31:0] alufn[5:0] f[31:0] alu32
+
+*******************************************************************************
+* Test Cases for alu32
+*******************************************************************************
+
+Wa a[31:0] nrz(0v,5.0v,20ns,0ns,.1ns,.1ns)
++ -1 0x55555555 0xAAAAAAAA 1 -2 -1 -1 0x55555555 0 -1 0x55555555 0
++ -1 0x55555555 0 -1 0x55555555 0 -1 0x55555555 0 1 -1 -1 0x55555555 0xAAAAAAAA -1
++ 0x55555555 0xAAAAAAAA -1 -1 15 0 -1 15 0 -1 15 0
+
+Wb b[31:0] nrz(0v,5.0v,20ns,0ns,.1ns,.1ns)
++ 1 0x55555555 0xAAAAAAAA 1 0 -1 -1 0xAAAAAAAA 0 -1 0xAAAAAAAA 0
++ -1 0xAAAAAAAA 0 -1 0xAAAAAAAA 0 -1 0xAAAAAAAA 0 31 15 0 24 24 31
++ 24 24 31 1 15 -256 1 15 -256 1 15 -256
+
+Wf alufn[5:0] nrz(0v,5.0v,60ns,0ns,.1ns,.1ns)
++ 0 1 24 30 22 26 21 32 33 35 51 53 55 
+
+*******************************************************************************
+* Show via plot 
+*******************************************************************************
+.tran 600ns
+.plot a[31:0]
+.plot b[31:0]
+.plot alufn[5:0]
+.plot f[31:0]
+
+*******************************************************************************
+* Determining Circuit Size
+*******************************************************************************
+
+* circuit size = ### gates (### microns)
+
+* explain how you optimized the size
+
+*******************************************************************************
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
