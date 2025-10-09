@@ -101,9 +101,31 @@
 
 *******************************************************************************
 
-* 32-bit Shifter
+*  32-bit Shifter
 .subckt shift32 a[31:0] b[4:0] op[1:0] fshift[31:0]
-*   insert code here
+
+* op[1:0] encoding:
+*   00 = logical left shift (LLS)
+*   01 = logical right shift (LRS)  
+*   11 = arithmetic right shift (ARS)
+*   10 = DONT CARE
+
+* Control signals
+  Xinv op[0] not_op0 inverter
+  Xnor op[1] op[0] shift_left nor2
+  Xand op[1] op[0] arith_shift and2
+
+*Shift by 1
+
+*Shift by 2
+
+*Shift by 4
+
+*Shift by 8
+
+*Shift by 16
+
+
 .ends
 
 *******************************************************************************
