@@ -115,6 +115,9 @@
   Xnor op[1] op[0] shift_left nor2
   Xand op[1] op[0] arith_shift and2
 
+* Determine fill bit for right shifts (0 for logical, sign bit for arithmetic)
+  Xmux_fill arith_shift 0 a[31] fill_bit mux2
+
 *Shift by 1
 
 *Shift by 2
