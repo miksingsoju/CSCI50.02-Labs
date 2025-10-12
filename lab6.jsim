@@ -36,6 +36,44 @@
 * 32-bit adder
 .subckt add32 a[31:0] b[31:0] cin0 sum[31:0] cout[31:30]
   Xadder a[31:0] b[31:0] cout[30:0] cin0 sum[31:0] cout[31:0] fa
+.ends*******************************************************************************
+* LAB #5
+* - Buenaobra, John Aldrich
+* - Cayago, Mikylla Cherrizse
+* - Sy, Mishka
+*******************************************************************************
+
+.include "8clocks.jsim"
+.include "nominal.jsim"
+.include "stdcell.jsim"
+
+*******************************************************************************
+
+* Full adder
+.subckt fa a b c_in sum c_out
+  Xnand1 a b out1 nand2
+  Xnand2 a out1 out2 nand2
+  Xnand3 b out1 out3 nand2
+  Xnand4 out2 out3 out4 nand2
+
+  * this uses the carry_in as one of the inputs
+  Xnand5 out4 c_in out5 nand2
+
+  Xnand6 out4 out5 out6 nand2
+  Xnand7 out5 c_in out7 nand2
+
+  * This outputs the sum
+  Xnand8 out6 out7 sum nand2
+
+  * This outputs the carry out
+  Xnand9 out1 out5 c_out nand2
+.ends
+
+*******************************************************************************
+
+* 32-bit adder
+.subckt add32 a[31:0] b[31:0] cin0 sum[31:0] cout[31:30]
+  Xadder a[31:0] b[31:0] cout[30:0] cin0 sum[31:0] cout[31:0] fa
 .ends
 
 *******************************************************************************
@@ -93,9 +131,18 @@
 .ends
 
 *******************************************************************************
+
+*ASCMP Combined
+.subckt as_cmp32 a[31:0] b[31:0] op[2:0] fcmp[31:0] fas[31:0] n v z
+  Xas32 a[31:0] b[31:0] op[0] fas[31:0] n v z as32
+  Xcmp32 n v z op[2:1] fcmp[31:0] cmp32
+.ends
+
+*******************************************************************************
+
+*******************************************************************************
 * Bitwise Boolean
 .subckt bool32 a[31:0] b[31:0] op[3:0] fbool[31:0]
-*   insert code here
   Xbool a[0:31] b[0:31] op[3:0]#32 fbool[0:31] mux4
 .ends
 
@@ -112,9 +159,12 @@
 
 * Control signals
   Xinv op[0] not_op0 inverter
-  Xshift_left op[1] op[0] shift_left nor2        * shift_left = NOR(op1, op0)
-  Xnand_ars op[1] op[0] arith_shift_n nand2      * NAND version
-  Xinv_ars arith_shift_n arith_shift inverter    * invert to get AND
+  * shift_left = NOR(op1, op0)
+  Xshift_left op[1] op[0] shift_left nor2
+  * NAND version
+  Xnand_ars op[1] op[0] arith_shift_n nand2
+  * invert to get AND
+  Xinv_ars arith_shift_n arith_shift inverter
 
 * Determine fill bit for right shifts (0 for logical, sign bit for arithmetic)
 *   if arith_shift = 1 -> fill_bit = a[31]
@@ -123,51 +173,51 @@
 
 * Shift by 1 if b0=1
 * Left shift (<<1)
-  XmuxL1#32 b0 a[30:0] fill_const s1L[31:1] mux2
+  XmuxL1 b0#31 a[30:0] fill_const#31 s1L[31:1] mux2
   .connect s1L0 fill_const
 
 * Right shift (>>1)
-  XmuxR1#32 b0 a[31:1] fill_bit s1R[30:0] mux2
+  XmuxR1 b0#31 a[31:1] fill_bit#31 s1R[30:0] mux2
   .connect s1R31 fill_bit
 
 * Select left or right version
-  Xmux_dir1 shift_left s1R[31:0] s1L[31:0] shift1[31:0] mux2
+  Xmux_dir1 shift_left#32 s1R[31:0] s1L[31:0] shift1[31:0] mux2
 
 * Shift by 2 if b1=1
-  XmuxL2#32 b1 shift1[29:0] fill_const s2L[31:2] mux2
+  XmuxL2 b1#30 shift1[29:0] fill_const#30 s2L[31:2] mux2
   .connect s2L[1:0] fill_const
 
-  XmuxR2#32 b1 shift1[31:2] fill_bit s2R[29:0] mux2
+  XmuxR2 b1#30 shift1[31:2] fill_bit#30 s2R[29:0] mux2
   .connect s2R[31:30] fill_bit
 
-  Xmux_dir2 shift_left s2R[31:0] s2L[31:0] shift2[31:0] mux2
+  Xmux_dir2 shift_left#32 s2R[31:0] s2L[31:0] shift2[31:0] mux2
 
 * Shift by 4 if b2=1
-  XmuxL3#32 b2 shift2[27:0] fill_const s3L[31:4] mux2
+  XmuxL3 b2#28 shift2[27:0] fill_const#28 s3L[31:4] mux2
   .connect s3L[3:0] fill_const
 
-  XmuxR3#32 b2 shift2[31:4] fill_bit s3R[27:0] mux2
+  XmuxR3 b2#28 shift2[31:4] fill_bit#28 s3R[27:0] mux2
   .connect s3R[31:28] fill_bit
 
-  Xmux_dir3 shift_left s3R[31:0] s3L[31:0] shift4[31:0] mux2
+  Xmux_dir3 shift_left#32 s3R[31:0] s3L[31:0] shift4[31:0] mux2
 
 * Shift by 8 if b3=1
-  XmuxL4#32 b3 shift4[23:0] fill_const s4L[31:8] mux2
+  XmuxL4 b3#24 shift4[23:0] fill_const#24 s4L[31:8] mux2
   .connect s4L[7:0] fill_const
 
-  XmuxR4#32 b3 shift4[31:8] fill_bit s4R[23:0] mux2
+  XmuxR4 b3#24 shift4[31:8] fill_bit#24 s4R[23:0] mux2
   .connect s4R[31:24] fill_bit
 
-  Xmux_dir4 shift_left s4R[31:0] s4L[31:0] shift8[31:0] mux2
+  Xmux_dir4 shift_left#32 s4R[31:0] s4L[31:0] shift8[31:0] mux2
 
 * Shift by 16 if b4=1
-  XmuxL5#32 b4 shift8[15:0] fill_const s5L[31:16] mux2
+  XmuxL5 b4#16 shift8[15:0] fill_const#16 s5L[31:16] mux2
   .connect s5L[15:0] fill_const
 
-  XmuxR5#32 b4 shift8[31:16] fill_bit s5R[15:0] mux2
+  XmuxR5 b4#16 shift8[31:16] fill_bit#16 s5R[15:0] mux2
   .connect s5R[31:16] fill_bit
 
-  Xmux_dir5 shift_left s5R[31:0] s5L[31:0] fshift[31:0] mux2
+  Xmux_dir5 shift_left#32 s5R[31:0] s5L[31:0] fshift[31:0] mux2
 
 .ends
 
@@ -175,7 +225,11 @@
 
 * ALU
 .subckt alu32 a[31:0] b[31:0] alufn[5:0] f[31:0]
-*   insert code here
+  Xas_cmp32 a[31:0] b[31:0] alufn[2:0] fcmp[31:0] fas[31:0] n v z as_cmp32
+  Xbool32 a[31:0] b[31:0] alufn[3:0] fbool[31:0] bool32
+  Xshift32 a[31:0] b[4:0] alufn[1:0] fshift[31:0] shift32
+
+  Xout alufn[4]#32 alufn[5]#32 fas[31:0] fbool[31:0] fshift[31:0] fcmp[31:0] f[31:0] mux4
 .ends
 
 *******************************************************************************
@@ -219,19 +273,5 @@ Wf alufn[5:0] nrz(0v,5.0v,60ns,0ns,.1ns,.1ns)
 * explain how you optimized the size
 
 *******************************************************************************
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
