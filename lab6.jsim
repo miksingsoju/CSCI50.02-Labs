@@ -36,47 +36,9 @@
 * 32-bit adder
 .subckt add32 a[31:0] b[31:0] cin0 sum[31:0] cout[31:30]
   Xadder a[31:0] b[31:0] cout[30:0] cin0 sum[31:0] cout[31:0] fa
-.ends*******************************************************************************
-* LAB #5
-* - Buenaobra, John Aldrich
-* - Cayago, Mikylla Cherrizse
-* - Sy, Mishka
-*******************************************************************************
-
-.include "8clocks.jsim"
-.include "nominal.jsim"
-.include "stdcell.jsim"
-
-*******************************************************************************
-
-* Full adder
-.subckt fa a b c_in sum c_out
-  Xnand1 a b out1 nand2
-  Xnand2 a out1 out2 nand2
-  Xnand3 b out1 out3 nand2
-  Xnand4 out2 out3 out4 nand2
-
-  * this uses the carry_in as one of the inputs
-  Xnand5 out4 c_in out5 nand2
-
-  Xnand6 out4 out5 out6 nand2
-  Xnand7 out5 c_in out7 nand2
-
-  * This outputs the sum
-  Xnand8 out6 out7 sum nand2
-
-  * This outputs the carry out
-  Xnand9 out1 out5 c_out nand2
 .ends
 
-*******************************************************************************
 
-* 32-bit adder
-.subckt add32 a[31:0] b[31:0] cin0 sum[31:0] cout[31:30]
-  Xadder a[31:0] b[31:0] cout[30:0] cin0 sum[31:0] cout[31:0] fa
-.ends
-
-*******************************************************************************
 
 * Adder/Subtractor
 .subckt as32 a[31:0] b[31:0] op0 fas[31:0] n v z
@@ -158,9 +120,11 @@
 *   10 = DONT CARE
 
 * Control signals
-  Xshift_left op[1] op[0] shift_left nor2     * shift_left = NOR(op1, op0)
+  * shift_left = NOR(op1, op0)
+  Xshift_left op[1] op[0] shift_left nor2     
   Xnand_ars op[1] op[0] arith_shift_n nand2   
-  Xinv_ars arith_shift_n arith_shift inverter * invert to get AND
+   * invert to get AND
+  Xinv_ars arith_shift_n arith_shift inverter
 
 * Determine fill bit for right shifts (0 for logical, sign bit for arithmetic)
 *   if arith_shift = 1 -> fill_bit = a[31]
@@ -269,5 +233,6 @@ Wf alufn[5:0] nrz(0v,5.0v,60ns,0ns,.1ns,.1ns)
 * explain how you optimized the size
 
 *******************************************************************************
+
 
 
