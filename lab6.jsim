@@ -132,7 +132,7 @@
 
 *******************************************************************************
 
-*ASCMP Combined
+* ASCMP Combined
 .subckt as_cmp32 a[31:0] b[31:0] op[2:0] fcmp[31:0] fas[31:0] n v z
   Xas32 a[31:0] b[31:0] op[0] fas[31:0] n v z as32
   Xcmp32 n v z op[2:1] fcmp[31:0] cmp32
@@ -148,7 +148,7 @@
 
 *******************************************************************************
 
-*  32-bit Shifter
+* 32-bit Shifter
 .subckt shift32 a[31:0] b[4:0] op[1:0] fshift[31:0]
 
 * op[1:0] encoding:
@@ -158,13 +158,9 @@
 *   10 = DONT CARE
 
 * Control signals
-  Xinv op[0] not_op0 inverter
-  * shift_left = NOR(op1, op0)
-  Xshift_left op[1] op[0] shift_left nor2
-  * NAND version
-  Xnand_ars op[1] op[0] arith_shift_n nand2
-  * invert to get AND
-  Xinv_ars arith_shift_n arith_shift inverter
+  Xshift_left op[1] op[0] shift_left nor2     * shift_left = NOR(op1, op0)
+  Xnand_ars op[1] op[0] arith_shift_n nand2   
+  Xinv_ars arith_shift_n arith_shift inverter * invert to get AND
 
 * Determine fill bit for right shifts (0 for logical, sign bit for arithmetic)
 *   if arith_shift = 1 -> fill_bit = a[31]
@@ -173,51 +169,51 @@
 
 * Shift by 1 if b0=1
 * Left shift (<<1)
-  XmuxL1 b0#31 a[30:0] fill_const#31 s1L[31:1] mux2
-  .connect s1L0 fill_const
+  XmuxL1 b[0] a[30:0] 0#31 s1L[31:1] mux2
+  .connect s1L[0] 0
 
 * Right shift (>>1)
-  XmuxR1 b0#31 a[31:1] fill_bit#31 s1R[30:0] mux2
-  .connect s1R31 fill_bit
+  XmuxR1 b[0] a[31:1] fill_bit#31 s1R[30:0] mux2
+  .connect s1R[31] fill_bit
 
-* Select left or right version
-  Xmux_dir1 shift_left#32 s1R[31:0] s1L[31:0] shift1[31:0] mux2
+* Select left or right
+  Xmux_dir1 shift_left s1R[31:0] s1L[31:0] shift1[31:0] mux2
 
 * Shift by 2 if b1=1
-  XmuxL2 b1#30 shift1[29:0] fill_const#30 s2L[31:2] mux2
-  .connect s2L[1:0] fill_const
+  XmuxL2 b[1] shift1[29:0] 0#30 s2L[31:2] mux2
+  .connect s2L[1:0] 0#2
 
-  XmuxR2 b1#30 shift1[31:2] fill_bit#30 s2R[29:0] mux2
-  .connect s2R[31:30] fill_bit
+  XmuxR2 b[1] shift1[31:2] fill_bit#30 s2R[29:0] mux2
+  .connect s2R[31:30] fill_bit#2
 
-  Xmux_dir2 shift_left#32 s2R[31:0] s2L[31:0] shift2[31:0] mux2
+  Xmux_dir2 shift_left s2R[31:0] s2L[31:0] shift2[31:0] mux2
 
 * Shift by 4 if b2=1
-  XmuxL3 b2#28 shift2[27:0] fill_const#28 s3L[31:4] mux2
-  .connect s3L[3:0] fill_const
+  XmuxL3 b[2] shift2[27:0] 0#28 s3L[31:4] mux2
+  .connect s3L[3:0] 0#4
 
-  XmuxR3 b2#28 shift2[31:4] fill_bit#28 s3R[27:0] mux2
-  .connect s3R[31:28] fill_bit
+  XmuxR3 b[2] shift2[31:4] fill_bit#28 s3R[27:0] mux2
+  .connect s3R[31:28] fill_bit#4
 
-  Xmux_dir3 shift_left#32 s3R[31:0] s3L[31:0] shift4[31:0] mux2
+  Xmux_dir3 shift_left s3R[31:0] s3L[31:0] shift4[31:0] mux2
 
 * Shift by 8 if b3=1
-  XmuxL4 b3#24 shift4[23:0] fill_const#24 s4L[31:8] mux2
-  .connect s4L[7:0] fill_const
+  XmuxL4 b[3] shift4[23:0] 0#24 s4L[31:8] mux2
+  .connect s4L[7:0] 0#8
 
-  XmuxR4 b3#24 shift4[31:8] fill_bit#24 s4R[23:0] mux2
-  .connect s4R[31:24] fill_bit
+  XmuxR4 b[3] shift4[31:8] fill_bit#24 s4R[23:0] mux2
+  .connect s4R[31:24] fill_bit#8
 
-  Xmux_dir4 shift_left#32 s4R[31:0] s4L[31:0] shift8[31:0] mux2
+  Xmux_dir4 shift_left s4R[31:0] s4L[31:0] shift8[31:0] mux2
 
 * Shift by 16 if b4=1
-  XmuxL5 b4#16 shift8[15:0] fill_const#16 s5L[31:16] mux2
-  .connect s5L[15:0] fill_const
+  XmuxL5 b[4] shift8[15:0] 0#16 s5L[31:16] mux2
+  .connect s5L[15:0] 0#16
 
-  XmuxR5 b4#16 shift8[31:16] fill_bit#16 s5R[15:0] mux2
-  .connect s5R[31:16] fill_bit
+  XmuxR5 b[4] shift8[31:16] fill_bit#16 s5R[15:0] mux2
+  .connect s5R[31:16] fill_bit#16
 
-  Xmux_dir5 shift_left#32 s5R[31:0] s5L[31:0] fshift[31:0] mux2
+  Xmux_dir5 shift_left s5R[31:0] s5L[31:0] fshift[31:0] mux2
 
 .ends
 
