@@ -13,23 +13,14 @@
 
 * Full adder
 .subckt fa a b c_in sum c_out
-  Xnand1 a b out1 nand2
-  Xnand2 a out1 out2 nand2
-  Xnand3 b out1 out3 nand2
-  Xnand4 out2 out3 out4 nand2
+  Xxor1 a b xor_ab xor2
+  Xxor2 xor_ab c_in sum xor2
 
-  * this uses the carry_in as one of the inputs
-  Xnand5 out4 c_in out5 nand2
-
-  Xnand6 out4 out5 out6 nand2
-  Xnand7 out5 c_in out7 nand2
-
-  * This outputs the sum
-  Xnand8 out6 out7 sum nand2
-
-  * This outputs the carry out
-  Xnand9 out1 out5 c_out nand2
+  Xnand1 a b nand_ab nand2
+  Xnand2 xor_ab c_in nab_xor_cin nand2
+  Xnand3 nab_xor_cin nand_ab c_out nand2
 .ends
+
 
 *******************************************************************************
 
