@@ -133,51 +133,51 @@
 
 * Shift by 1 if b0=1
 * Left shift (<<1)
-  XmuxL1 b[0] a[30:0] 0#31 s1L[31:1] mux2
+  XmuxL1 b[0]#31 a[30:0] 0#31 s1L[31:1] mux2
   .connect s1L[0] 0
 
 * Right shift (>>1)
-  XmuxR1 b[0] a[31:1] fill_bit#31 s1R[30:0] mux2
+  XmuxR1 b[0]#31 a[31:1] fill_bit#31 s1R[30:0] mux2
   .connect s1R[31] fill_bit
 
 * Select left or right
-  Xmux_dir1 shift_left s1R[31:0] s1L[31:0] shift1[31:0] mux2
+  Xmux_dir1 shift_left#32 s1R[31:0] s1L[31:0] shift1[31:0] mux2
 
 * Shift by 2 if b1=1
-  XmuxL2 b[1] shift1[29:0] 0#30 s2L[31:2] mux2
+  XmuxL2 b[1]#30 shift1[29:0] 0#30 s2L[31:2] mux2
   .connect s2L[1:0] 0#2
 
-  XmuxR2 b[1] shift1[31:2] fill_bit#30 s2R[29:0] mux2
+  XmuxR2 b[1]#30 shift1[31:2] fill_bit#30 s2R[29:0] mux2
   .connect s2R[31:30] fill_bit#2
 
-  Xmux_dir2 shift_left s2R[31:0] s2L[31:0] shift2[31:0] mux2
+  Xmux_dir2 shift_left#32 s2R[31:0] s2L[31:0] shift2[31:0] mux2
 
 * Shift by 4 if b2=1
-  XmuxL3 b[2] shift2[27:0] 0#28 s3L[31:4] mux2
+  XmuxL3 b[2]#28 shift2[27:0] 0#28 s3L[31:4] mux2
   .connect s3L[3:0] 0#4
 
-  XmuxR3 b[2] shift2[31:4] fill_bit#28 s3R[27:0] mux2
+  XmuxR3 b[2]#28 shift2[31:4] fill_bit#28 s3R[27:0] mux2
   .connect s3R[31:28] fill_bit#4
 
-  Xmux_dir3 shift_left s3R[31:0] s3L[31:0] shift4[31:0] mux2
+  Xmux_dir3 shift_left#32 s3R[31:0] s3L[31:0] shift4[31:0] mux2
 
 * Shift by 8 if b3=1
-  XmuxL4 b[3] shift4[23:0] 0#24 s4L[31:8] mux2
+  XmuxL4 b[3]#24 shift4[23:0] 0#24 s4L[31:8] mux2
   .connect s4L[7:0] 0#8
 
-  XmuxR4 b[3] shift4[31:8] fill_bit#24 s4R[23:0] mux2
+  XmuxR4 b[3]#24 shift4[31:8] fill_bit#24 s4R[23:0] mux2
   .connect s4R[31:24] fill_bit#8
 
-  Xmux_dir4 shift_left s4R[31:0] s4L[31:0] shift8[31:0] mux2
+  Xmux_dir4 shift_left#32 s4R[31:0] s4L[31:0] shift8[31:0] mux2
 
 * Shift by 16 if b4=1
-  XmuxL5 b[4] shift8[15:0] 0#16 s5L[31:16] mux2
+  XmuxL5 b[4]#16 shift8[15:0] 0#16 s5L[31:16] mux2
   .connect s5L[15:0] 0#16
 
-  XmuxR5 b[4] shift8[31:16] fill_bit#16 s5R[15:0] mux2
+  XmuxR5 b[4]#16 shift8[31:16] fill_bit#16 s5R[15:0] mux2
   .connect s5R[31:16] fill_bit#16
 
-  Xmux_dir5 shift_left s5R[31:0] s5L[31:0] fshift[31:0] mux2
+  Xmux_dir5 shift_left#32 s5R[31:0] s5L[31:0] fshift[31:0] mux2
 
 .ends
 
