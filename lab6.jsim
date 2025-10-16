@@ -46,6 +46,10 @@
   .connect fas[31] n 
 
   *zero flag
+  * this block checks if each 4-bit group are all zeroes
+  * by using nor gates
+  * Each nor4 outputs 1 ONLY IF that 4-bit group is all zero
+
   Xnor0 fas[0:3] n0 nor4
   Xnor1 fas[4:7] n1 nor4
   Xnor2 fas[8:11] n2 nor4
@@ -55,9 +59,15 @@
   Xnor6 fas[24:27] n6 nor4
   Xnor7 fas[28:31] n7 nor4
 
+  * Nand the first and second half
+  * If all groups are 1 (which means the nor4s are all zero)
+  * the 2 nand gates will output 0
+  
   Xnand1 n[0:3] m1 nand4
   Xnand2 n[4:7] m2 nand4
 
+  * If both halves are 0, z will be 1, which means all are zero = true
+  * and vice versa
   Xnor9 m1 m2 z nor2
 
   *overflow flag
