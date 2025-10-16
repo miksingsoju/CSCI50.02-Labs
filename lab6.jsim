@@ -105,6 +105,10 @@
 
 *******************************************************************************
 * Bitwise Boolean
+
+* Each bit of (a[i], b[i]) feeds into a mux4 structure controlled by op[3:0]
+* The selected Boolean function is applied BITWISE across all 32 bits.
+
 .subckt bool32 a[31:0] b[31:0] op[3:0] fbool[31:0]
   Xbool a[0:31] b[0:31] op[3:0]#32 fbool[0:31] mux4
 .ends
