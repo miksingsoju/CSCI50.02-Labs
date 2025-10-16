@@ -114,20 +114,19 @@
 .ends
 
 *******************************************************************************
-
 * 32-bit Shifter
 .subckt shift32 a[31:0] b[4:0] op[1:0] fshift[31:0]
 
 * op[1:0] encoding:
 *   00 = logical left shift (LLS)
-*   01 = logical right shift (LRS)  
+*   01 = logical right shift (LRS)
 *   11 = arithmetic right shift (ARS)
 *   10 = DONT CARE
 
 * Control signals
   * shift_left = NOR(op1, op0)
-  Xshift_left op[1] op[0] shift_left nor2     
-  Xnand_ars op[1] op[0] arith_shift_n nand2   
+  Xshift_left op[1] op[0] shift_left nor2
+  Xnand_ars op[1] op[0] arith_shift_n nand2
    * invert to get AND
   Xinv_ars arith_shift_n arith_shift inverter
 
@@ -136,56 +135,29 @@
 *   if arith_shift = 0 -> fill_bit = 0
   Xmux_fill arith_shift 0 a[31] fill_bit mux2
 
-* Shift by 1 if b0=1
-* Left shift (<<1)
-  XmuxL1 b[0]#31 a[30:0] 0#31 s1L[31:1] mux2
-  .connect s1L[0] 0
+*feeds reversed input when left shift is needed
+  Xmux_pre shift_left#32 a[31:0] a[0:31] a_eff[31:0] mux2
 
-* Right shift (>>1)
-  XmuxR1 b[0]#31 a[31:1] fill_bit#31 s1R[30:0] mux2
+*Only have right shift
+*With the idea that reversing the input and output would lead to the left shift instead
+  XmuxR1 b[0]#31 a_eff[31:1] fill_bit#31 s1R[30:0] mux2
   .connect s1R[31] fill_bit
 
-* Select left or right
-  Xmux_dir1 shift_left#32 s1R[31:0] s1L[31:0] shift1[31:0] mux2
-
-* Shift by 2 if b1=1
-  XmuxL2 b[1]#30 shift1[29:0] 0#30 s2L[31:2] mux2
-  .connect s2L[1:0] 0#2
-
-  XmuxR2 b[1]#30 shift1[31:2] fill_bit#30 s2R[29:0] mux2
+  XmuxR2 b[1]#30 s1R[31:2] fill_bit#30 s2R[29:0] mux2
   .connect s2R[31:30] fill_bit#2
 
-  Xmux_dir2 shift_left#32 s2R[31:0] s2L[31:0] shift2[31:0] mux2
-
-* Shift by 4 if b2=1
-  XmuxL3 b[2]#28 shift2[27:0] 0#28 s3L[31:4] mux2
-  .connect s3L[3:0] 0#4
-
-  XmuxR3 b[2]#28 shift2[31:4] fill_bit#28 s3R[27:0] mux2
+  XmuxR3 b[2]#28 s2R[31:4] fill_bit#28 s3R[27:0] mux2
   .connect s3R[31:28] fill_bit#4
 
-  Xmux_dir3 shift_left#32 s3R[31:0] s3L[31:0] shift4[31:0] mux2
-
-* Shift by 8 if b3=1
-  XmuxL4 b[3]#24 shift4[23:0] 0#24 s4L[31:8] mux2
-  .connect s4L[7:0] 0#8
-
-  XmuxR4 b[3]#24 shift4[31:8] fill_bit#24 s4R[23:0] mux2
+  XmuxR4 b[3]#24 s3R[31:8] fill_bit#24 s4R[23:0] mux2
   .connect s4R[31:24] fill_bit#8
 
-  Xmux_dir4 shift_left#32 s4R[31:0] s4L[31:0] shift8[31:0] mux2
-
-* Shift by 16 if b4=1
-  XmuxL5 b[4]#16 shift8[15:0] 0#16 s5L[31:16] mux2
-  .connect s5L[15:0] 0#16
-
-  XmuxR5 b[4]#16 shift8[31:16] fill_bit#16 s5R[15:0] mux2
+  XmuxR5 b[4]#16 s4R[31:16] fill_bit#16 s5R[15:0] mux2
   .connect s5R[31:16] fill_bit#16
-
-  Xmux_dir5 shift_left#32 s5R[31:0] s5L[31:0] fshift[31:0] mux2
-
+  
+*feeds reversed output when left shift is needed
+  Xmux_post shift_left#32 s5R[31:0] s5R[0:31] fshift[31:0] mux2
 .ends
-
 *******************************************************************************
 
 * ALU
@@ -232,7 +204,7 @@ Wf alufn[5:0] nrz(0v,5.0v,60ns,0ns,.1ns,.1ns)
 *******************************************************************************
 * Determining Circuit Size
 *******************************************************************************
-* Circuit Size = 854 gates (19736.0 microns)
+* Circuit Size = 629 gates (13661.0 microns)
 
 * Changed our original all NAND Full Adder to have 2 XOR + 3 NANDs instead
 
@@ -242,8 +214,7 @@ Wf alufn[5:0] nrz(0v,5.0v,60ns,0ns,.1ns,.1ns)
 
 * Bitwise Boolean (bool32) mainly uses MUX4 gates to choose between AND, OR, XOR, and NOT operations
 
-* Shifter (shift32) is a compact barrel shifter built using several MUX2 gates
-
+* Shifter originally accounted for both right and left shift, we figured out we could simply recycle left shift by reversing the input and output of the shifter
 * ALU integrates all modules using MUX4 to select correct function output
 
 *******************************************************************************
