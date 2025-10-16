@@ -218,12 +218,20 @@ Wf alufn[5:0] nrz(0v,5.0v,60ns,0ns,.1ns,.1ns)
 *******************************************************************************
 * Determining Circuit Size
 *******************************************************************************
+* Circuit Size = 854 gates (19736.0 microns)
 
-* circuit size = ### gates (### microns)
+* Changed our original all NAND Full Adder to have 2 XOR + 3 NANDs instead
 
-* explain how you optimized the size
+* Adder/Subtractor (as32) reuses the same optimized adder and adds a few MUX, NOR, and NAND gates for control, z, n, and v flags
+
+* Comparator (cmp32) uses a few XOR, AND, and OR gates to check equality and less-than conditions
+
+* Bitwise Boolean (bool32) mainly uses MUX4 gates to choose between AND, OR, XOR, and NOT operations
+
+* Shifter (shift32) is a compact barrel shifter built using several MUX2 gates
+
+* ALU integrates all modules using MUX4 to select correct function output
 
 *******************************************************************************
-
 
 
