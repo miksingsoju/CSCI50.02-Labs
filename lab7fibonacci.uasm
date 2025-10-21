@@ -1,0 +1,78 @@
+|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+| This sample .uasm program processes an array of integers and computes
+| their total sum.
+|
+| Important notes:
+| 1. For Lab 7, you are expected to mark the data portions of your program
+|    using labels, as demonstrated below using the labels INPUT: and OUTPUT:.
+| 2. While this sample program should work fine with most user inputs, there
+|    is an edge case that will cause this program to fail catastrophically.
+|    (Can you figure it out?)
+|
+| Happy hacking! - eric, ros, gab
+
+|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+| This .uasm program generates the first N Fibonacci numbers
+|
+| Input: N at INPUT memory location  
+| Output: First N Fibonacci numbers stored at OUTPUT
+
+|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+.include beta.uasm        
+
+    LD(r31, INPUT, r0)      | r0 = N (number of terms to generate)
+    ADDC(r31, 1, r1)        | r1 = 1 (initialize first Fibonacci number)
+    ADD(r31, r31, r2)       | r2 = 0 (initialize second Fibonacci number)
+    ADD(r31, r31, r3)       | r3 = 0 (output array index)
+
+    BEQ(r0, DONE)           | Handle special cases: if N == 0, output nothing
+
+    | Store first Fibonacci number (0)
+    ST(r2, OUTPUT, r3)      | OUTPUT[0] = 0
+    ADDC(r3, 4, r3)         | r3 = r3 + 4 (increment output index)
+    SUBC(r0, 1, r0)         | r0 = r0 - 1 (decrement counter)
+    BEQ(r0, DONE)           | If N == 1, we're done
+
+    | Store second Fibonacci number (1)
+    ST(r1, OUTPUT, r3)      | OUTPUT[1] = 1
+    ADDC(r3, 4, r3)         | r3 = r3 + 4 (increment output index)
+    SUBC(r0, 1, r0)         | r0 = r0 - 1 (decrement counter)
+    BEQ(r0, DONE)           | If N == 2, we're done
+
+LOOP:   
+    ADD(r1, r2, r4)         | r4 = current + previous
+
+    ST(r4, OUTPUT, r3)      | OUTPUT[i] = r4
+    ADDC(r3, 4, r3)         | r3 = r3 + 4 (increment output index)
+
+    ADD(r4, r31, r1)        | r1 = new current (r4)
+
+    | Shift values for next iteration: r2 = r1, r1 = r4
+    ADD(r1, r31, r2)        | r2 = previous current (r1)
+    ADD(r4, r31, r1)        | r1 = new current (r4)
+
+    | Continue loop
+    SUBC(r0, 1, r0)         | r0 = r0 - 1 (decrement counter)
+    BNE(r0, LOOP)           | Loop if more terms needed
+    
+DONE:
+    HALT()
+
+|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+
+| The "." statement changes the current memory location of any succeeding
+| UASM macros, so that it is easy to locate in the BSim window.
+| - If you omit this statement, the INPUT memory block would begin directly
+|   after your program block.
+| - You may need to adjust this memory location to make more memory space for
+|   your data.
+. = 0x19C
+
+| INPUT marks the beginning of the memory block containing the hardcoded
+| user "input".
+INPUT:
+        LONG(7)               | <-- Generate first 7 Fibonacci numbers
+
+| OUTPUT marks the memory block where the output will appear.
+| Nothing follows the label because the output will be written by the program.
+OUTPUT:
