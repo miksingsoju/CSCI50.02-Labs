@@ -12,20 +12,21 @@
 | Happy hacking! - eric, ros, gab
 
 |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-| This .uasm program generates the first N Fibonacci numbers
+| Fibonacci Sequence:
 |
 | Input: N at INPUT memory location  
 | Output: First N Fibonacci numbers stored at OUTPUT
 
 |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+
 .include beta.uasm        
 
-    LD(r31, INPUT, r0)      | r0 = N (number of terms to generate)
-    ADDC(r31, 1, r1)        | r1 = 1 (initialize first Fibonacci number)
-    ADD(r31, r31, r2)       | r2 = 0 (initialize second Fibonacci number)
-    ADD(r31, r31, r3)       | r3 = 0 (output array index)
+    LD(r31, INPUT, r0)      | r0 = N (number of terms)
+    BEQ(r0, DONE)           | if N == 0, end immediately
 
-    BEQ(r0, DONE)           | Handle special cases: if N == 0, output nothing
+    ADDC(r31, 0, r1)        | r1 = 0 (first Fibonacci number)
+    ADDC(r31, 1, r2)        | r2 = 1 (second Fibonacci number)
+    ADDC(r31, 0, r3)        | r3 = output offset (index)
 
     | Store first Fibonacci number (0)
     ST(r2, OUTPUT, r3)      | OUTPUT[0] = 0
@@ -41,15 +42,11 @@
 
 LOOP:   
     ADD(r1, r2, r4)         | r4 = current + previous
-
-    ST(r4, OUTPUT, r3)      | OUTPUT[i] = r4
+    ST(r4, OUTPUT, r3)      | store next
     ADDC(r3, 4, r3)         | r3 = r3 + 4 (increment output index)
 
-    ADD(r4, r31, r1)        | r1 = new current (r4)
-
-    | Shift values for next iteration: r2 = r1, r1 = r4
-    ADD(r1, r31, r2)        | r2 = previous current (r1)
-    ADD(r4, r31, r1)        | r1 = new current (r4)
+    ADD(r2, r31, r1)        | r1 = old curr → becomes new prev
+    ADD(r4, r31, r2)        | r2 = new next → becomes new curr
 
     | Continue loop
     SUBC(r0, 1, r0)         | r0 = r0 - 1 (decrement counter)
@@ -71,7 +68,7 @@ DONE:
 | INPUT marks the beginning of the memory block containing the hardcoded
 | user "input".
 INPUT:
-        LONG(7)               | <-- Generate first 7 Fibonacci numbers
+    LONG(7)               | <-- Generate first 7 Fibonacci numbers
 
 | OUTPUT marks the memory block where the output will appear.
 | Nothing follows the label because the output will be written by the program.
