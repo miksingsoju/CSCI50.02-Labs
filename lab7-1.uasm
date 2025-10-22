@@ -29,13 +29,13 @@
     ADDC(r31, 0, r3)        | r3 = output offset (index)
 
     | Store first Fibonacci number (0)
-    ST(r2, OUTPUT, r3)      | OUTPUT[0] = 0
+    ST(r1, OUTPUT, r3)      | OUTPUT[0] = 0
     ADDC(r3, 4, r3)         | r3 = r3 + 4 (increment output index)
     SUBC(r0, 1, r0)         | r0 = r0 - 1 (decrement counter)
     BEQ(r0, DONE)           | If N == 1, we're done
 
     | Store second Fibonacci number (1)
-    ST(r1, OUTPUT, r3)      | OUTPUT[1] = 1
+    ST(r2, OUTPUT, r3)      | OUTPUT[1] = 1
     ADDC(r3, 4, r3)         | r3 = r3 + 4 (increment output index)
     SUBC(r0, 1, r0)         | r0 = r0 - 1 (decrement counter)
     BEQ(r0, DONE)           | If N == 2, we're done
