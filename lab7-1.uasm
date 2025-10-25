@@ -1,15 +1,8 @@
 |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-| This sample .uasm program processes an array of integers and computes
-| their total sum.
-|
-| Important notes:
-| 1. For Lab 7, you are expected to mark the data portions of your program
-|    using labels, as demonstrated below using the labels INPUT: and OUTPUT:.
-| 2. While this sample program should work fine with most user inputs, there
-|    is an edge case that will cause this program to fail catastrophically.
-|    (Can you figure it out?)
-|
-| Happy hacking! - eric, ros, gab
+| Lab #7-1
+|  - Buenaobra, John Aldrich
+|  - Cayago, Mikylla Cherrizse
+|  - Sy, Mishka
 
 |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 | Fibonacci Sequence:
