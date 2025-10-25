@@ -25,78 +25,53 @@
 
 |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 
-.include beta.uasm          | include the standard predefined macros
+.include beta.uasm
 
-|int N = 7; 
-|int[] arr = {64, 34, 25, 12, 22, 11, 90}; 
-        LD(r31, ARRAY, r0)         | r0 = N (array length)
+        LD(r31, ARRAY, r0)         | r0 = N
+        BEQ(r0, DONE)              | if N == 0 → halt
 
-|int i = 0; 
-        ADDC(r31, 0, r1)           | r1 = i = 0 (outer loop)
-        ADDC(r31, ARRAY, r2)       | r2 = base address (points to N)
+        ADDC(r31, 0, r1)           | r1 = i = 0
+        ADDC(r31, ARRAY, r2)       | r2 = base address (ARRAY)
         ADDC(r2, 4, r2)            | move r2 to first element (skip N)
 
-|while (i < N - 1) { 
 OUTER_LOOP:
-        SUBC(r0, 1, r3)            | r3 = r0 - 1 -> N - 1
-        COMPLE(r1, r3, r4)         | r4 = r1 < r3 
-        BEQ(r4, DONE)              | DONE if r4 is 0
-        
-| int j = 0;
-        ADDC(r31, 0, r5)            | r5 = j = 0
+        SUBC(r0, 1, r3)            | r3 = N - 1
+        CMPLT(r1, r3, r4)          | r4 = (i < N-1)
+        BEQ(r4, DONE)              | if not, done
 
-| int swapped = 0; 
-        ADDC(r31, 0, r6)            | r6 = swapped = 0
+        ADDC(r31, 0, r5)           | j = 0
+        ADDC(r31, 0, r6)           | swapped = 0
 
-| while (j < N - i - 1) { 
 INNER_LOOP:
-        SUB(r0, r1, r7)             | r7 = r0 - r1 -> N - i
-        SUBC(r7, 1, r7)             | r7 = r7 - 1 
-        COMPLT(r5, r7, r8)          | r8 TRUE if r5 < r7 -> j < N - i - 1
-        BEQ(r8, OUTER_LOOP)
+        SUB(r0, r1, r7)            | r7 = N - i
+        SUBC(r7, 1, r7)            | r7 = N - i - 1
+        CMPLT(r5, r7, r8)          | (j < N - i - 1)?
+        BEQ(r8, CHECK_SWAPPED)     | if false, end inner loop
 
-| if (arr[j] > arr[j + 1]) { 
-        MULC(r5, 4, r9)             | r9 = j * 4 (word offset)
-        ADD(r2, r9, r9)             | r9 = r2 + r9 -> &arr[j]
+        MULC(r5, 4, r9)            | r9 = j * 4
+        ADD(r2, r9, r9)            | r9 = &arr[j]
+        ADDC(r9, 4, r10)           | r10 = &arr[j+1]
 
-        LD(r9, 0, r10)             | r10 = arr[j]
-        LD(r9, 4, r11)             | r11 = arr[j+1]
+        LD(r9, 0, r13)             | r13 = arr[j]
+        LD(r10, 0, r14)            | r14 = arr[j+1]
 
-        COMPLT(r10, r11, r12)      | r12 = r10 < r11 
-        BNE(r12, NOSWAP)
+        CMPLT(r14, r13, r11)       | (arr[j+1] < arr[j]) ?
+        BEQ(r11, NOSWAP)           | if false → no swap
 
-| // swap arr[j] and arr[j+1] 
-| int temp = arr[j]; 
-        
-
-| arr[j] = arr[j + 1]; 
-
-| arr[j + 1] = temp; 
-
-| swapped = 1; 
-| } 
-
-| j = j + 1; 
-| } 
-
-| if (swapped == 0) { 
-
-| break; // no swaps → already sorted 
-
-| } 
-
-| i = i + 1; 
-
-|}
+        ST(r9, 0, r14)             | arr[j]   = arr[j+1]
+        ST(r10, 0, r13)            | arr[j+1] = arr[j]
+        ADDC(r31, 1, r6)           | swapped = 1
 
 NOSWAP:
-        
+        ADDC(r5, 1, r5)            | j++
+        BR(INNER_LOOP)
 
-        
 CHECK_SWAPPED:
+        BEQ(r6, DONE)              | if swapped == 0 → already sorted
+        ADDC(r1, 1, r1)            | i++
+        BR(OUTER_LOOP)
 
-
-DONE: 
+DONE:
         HALT()
 
 |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
@@ -111,12 +86,9 @@ DONE:
 
 | INPUT marks the beginning of the memory block containing the hardcoded
 | user "input".
-ARRAY:  LONG(7)
-        LONG(5)             | <-- length of the array
+ARRAY:  LONG(3)             | <-- length of the array
         LONG(7)             | <-- first element of the array
+        LONG(5)             
         LONG(8)
-        LONG(6)
-        LONG(4)
-        LONG(9) 
-        LONG(3)             | <-- last element of the array
+       
 
