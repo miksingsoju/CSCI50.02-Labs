@@ -16,26 +16,26 @@
 
 .include beta.uasm
 
-        LD(r31, ARRAY, r0)         | r0 = N (array length)
-        BEQ(r0, DONE)              | if N == 0, done
+        LD(r31, ARRAY, r0)         | r0 = N
+        BEQ(r0, DONE)              | if N == 0 → halt
 
         ADDC(r31, 0, r1)           | r1 = i = 0
-        ADDC(r31, ARRAY, r2)       | r2 = base address
-        ADDC(r2, 4, r2)            | r2 -> first element (skip N)
+        ADDC(r31, ARRAY, r2)       | r2 = base address (ARRAY)
+        ADDC(r2, 4, r2)            | move r2 to first element (skip N)
 
 OUTER_LOOP:
         SUBC(r0, 1, r3)            | r3 = N - 1
-        CMPLT(r1, r3, r4)          | r4 = (i < N-1)?
-        BEQ(r4, DONE)              | if false, done
+        CMPLT(r1, r3, r4)          | r4 = (i < N-1)
+        BEQ(r4, DONE)              | if not, done
 
-        ADDC(r31, 0, r5)           | r5 = j = 0
-        ADDC(r31, 0, r6)           | r6 = swapped = 0
+        ADDC(r31, 0, r5)           | j = 0
+        ADDC(r31, 0, r6)           | swapped = 0
 
 INNER_LOOP:
         SUB(r0, r1, r7)            | r7 = N - i
         SUBC(r7, 1, r7)            | r7 = N - i - 1
-        CMPLT(r5, r7, r8)          | r8 = (j < N - i - 1)
-        BEQ(r8, CHECK_SWAPPED)     | if not, go check swapped flag
+        CMPLT(r5, r7, r8)          | (j < N - i - 1)?
+        BEQ(r8, CHECK_SWAPPED)     | if false, end inner loop
 
         MULC(r5, 4, r9)            | r9 = j * 4
         ADD(r2, r9, r9)            | r9 = &arr[j]
@@ -44,10 +44,9 @@ INNER_LOOP:
         LD(r9, 0, r13)             | r13 = arr[j]
         LD(r10, 0, r14)            | r14 = arr[j+1]
 
-        CMPLT(r13, r14, r11)       | r11 = (arr[j+1] < arr[j])
-        BEQ(r11, NOSWAP)           | if false, no swap
+        CMPLT(r14, r13, r11)       | (arr[j+1] < arr[j]) ?
+        BEQ(r11, NOSWAP)           | if false → no swap
 
-        | --- SWAP arr[j] and arr[j+1] ---
         ST(r9, 0, r14)             | arr[j]   = arr[j+1]
         ST(r10, 0, r13)            | arr[j+1] = arr[j]
         ADDC(r31, 1, r6)           | swapped = 1
@@ -57,15 +56,13 @@ NOSWAP:
         BR(INNER_LOOP)
 
 CHECK_SWAPPED:
-        BEQ(r6, DONE_OUTER_INC)    | if swapped == 0, array sorted → break
+        BEQ(r6, DONE)              | if swapped == 0 → already sorted
         ADDC(r1, 1, r1)            | i++
         BR(OUTER_LOOP)
 
-DONE_OUTER_INC:
-        BR(DONE)
-
 DONE:
         HALT()
+
 
 |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 | DATA SECTION
