@@ -17,7 +17,7 @@
         LD(r31, PLAINTEXT, r1)
 
 |shifting by 2 is equivalent to multiplying by 4
-|Giving us the Array Length * 4 as the offset tellign us the Array is exhausted
+|Giving us the Array Length * 4 as the max offset telling us the Array is exhausted
 
         SHLC(r0, 2, r8)    | For Key
         SHLC(r1, 2, r9)    | For Plaintext
@@ -31,25 +31,25 @@
         ADD(r31, r1, r10)
 
 LOOP:
+|Compare plaintext offset to max then do wrap instructions if
     CMPLT(r8, r4, r11)
     BNE(r11, WRAP)
-
+|Do the operation
     LD(r4, KEY, r2)
     LD(r5, PLAINTEXT, r3)
     XOR(r2, r3, r7)
     ST(r7, ENCRYPTED, r6)
-
+|Increment the array's offset
     ADDC(r4, 4, r4)
     ADDC(r5, 4, r5)
     ADDC(r6, 4, r6)
-
-LOOP2:
+|Decrement counter then check if should loop again
     SUBC(r10, 1, r10)
     BNE(r10, LOOP)
     HALT()
 
-
 WRAP:
+|Resets the offset to the one after the LONG containing array length
         ADDC(r31, 4, r4)
         BR(LOOP)
 
