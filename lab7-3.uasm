@@ -1,0 +1,76 @@
+|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+|
+| Lab #7-2
+|  - Buenaobra, John Aldrich
+|  - Cayago, Mikylla Cherrizse
+|  - Sy, Mishka
+|
+| Important notes:
+| 1. For Lab 7, you are expected to mark the data portions of your program
+|    using labels, as demonstrated below using the labels INPUT: and OUTPUT:.
+| 2. While this sample program should work fine with most user inputs, there
+|    is an edge case that will cause this program to fail catastrophically.
+|    (Can you figure it out?)
+|
+| Happy hacking! - eric, ros, gab
+|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+
+.include beta.uasm          | include the standard predefined macros
+
+
+        LD(r31, KEY, r0)
+        LD(r31, PLAINTEXT, r1)
+
+|shifting by 2 is equivalent to multiplying by 4
+|Giving us the Array Length * 4 as the max offset telling us the Array is exhausted
+
+        SHLC(r0, 2, r8)    | For Key
+        SHLC(r1, 2, r9)    | For Plaintext
+
+|Initializes the array's offset to zero
+        ADDC(r31, 4, r4)
+        ADDC(r31, 4, r5)
+        ADDC(r31, 0, r6)
+
+|Counter for the loop based on plaintext size
+        ADD(r31, r1, r10)
+
+LOOP:
+|Compare plaintext offset to max then do wrap instructions if
+    CMPLT(r8, r4, r11)
+    BNE(r11, WRAP)
+|Do the operation
+    LD(r4, KEY, r2)
+    LD(r5, PLAINTEXT, r3)
+    XOR(r2, r3, r7)
+    ST(r7, ENCRYPTED, r6)
+|Increment the array's offset
+    ADDC(r4, 4, r4)
+    ADDC(r5, 4, r5)
+    ADDC(r6, 4, r6)
+|Decrement counter then check if should loop again
+    SUBC(r10, 1, r10)
+    BNE(r10, LOOP)
+    HALT()
+
+WRAP:
+|Resets the offset to the one after the LONG containing array length
+        ADDC(r31, 4, r4)
+        BR(LOOP)
+
+.= 0x19C
+
+KEY: 
+        LONG(2)
+        LONG(42)
+        LONG(67)
+        
+PLAINTEXT: 
+        LONG(5)
+        LONG(72)
+        LONG(69)
+        LONG(76)
+        LONG(76)
+        LONG(79)
+
+ENCRYPTED:
