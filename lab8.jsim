@@ -55,7 +55,7 @@
 Xmemory  vdd  0    0   pc[8:2]    inst[31:0]
 +        vdd  0    0   mema[8:2]  memrd[31:0]
 +        0    clk  wr  mema[8:2]  memwd[31:0]
-+ $memory width=32 nlocations=128 file="lab7.bin"
++ $memory width=32 nlocations=128 file="lab7-1.bin"
 
 *******************************************************************************
 * Xregisters is a register memory device to store your Beta registers r0 - r31.
@@ -81,7 +81,17 @@ Xregisters  vdd  0    0      ra1_[4:0]  rd1_[31:0]
 *       the werf_ signal is forced OFF; otherwise, it should pass through the
 *       original werf signal.
 *******************************************************************************
-.connect werf werf_
+* .connect werf werf_
+
+* R31 Logic: Force werf_ to 0 (OFF) if wa[4:0] is 0b11111 (31).
+* The final logic is: werf_ = werf AND (NOT is_wa_31)
+
+* Use NOR to check if any bit is 0 (NOT all bits are 1)
+Xnor_31 wa[4] wa[3] wa[2] wa[1] wa[0] any_bit_zero nor5
+
+* Invert: not_is_wa_31 = 1 when address is NOT 31
+* (any_bit_zero = 1 means NOT register 31)
+Xwerf_final werf any_bit_zero werf_ and2
 
 *******************************************************************************
 * Xcontrol is a read-only memory (ROM) that defines what to feed into the
