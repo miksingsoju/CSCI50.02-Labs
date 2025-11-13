@@ -221,3 +221,19 @@ Xjdisplayb wr_werfs[2:0]    wr werf werf_          join
 .plot d(mema[8:0])
 .plot sd(memrd[31:0])
 .plot sd(memwd[31:0])
+
+*******************************************************************************
+* A. What is the true purpose of the additional Z input (on top of the 
+* instruction opcode inputs) in the Xcontrol blocks?
+
+* insert
+*******************************************************************************
+* B. What is the true purpose of setting the invalid instructions' control logic
+* output  to the constant 0b11000000000000?
+
+* insert
+*******************************************************************************
+* C. Does your Lab 7 program represent a good number of opcodes that your control
+* logic supports? What's the functional coverage?
+
+* insert
