@@ -1,7 +1,7 @@
 *******************************************************************************
-* - Buenaobra, John Aldrich
-*  - Cayago, Mikylla Cherrizse
-*  - Sy, Mishka
+* Biason, Neil Aldous
+* Medina, Joshua
+* Naguio, Christian
 *******************************************************************************
 
 .include "8clocks.jsim"
@@ -81,28 +81,14 @@ Xregisters  vdd  0    0      ra1_[4:0]  rd1_[31:0]
 *       the werf_ signal is forced OFF; otherwise, it should pass through the
 *       original werf signal.
 *******************************************************************************
-* .connect werf werf_
+* Xcheck_r31 will check if wa[4:0] is not equal to 0b11111 by using and4 and nand2 to make a 
+* 5-input nand. This outputs 1 when wa[4:0] != 0b11111, and 0 otherwise.
 
-* R31 Logic: Force werf_ to 0 (OFF) if wa[4:0] is 0b11111 (31).
-* Use NAND to check if first 4 bits is 0 
-* If wa[4:1] are 1 then NAND output is 0.
-* If wa[4:1] has a 0 then NAND output is 1.
-Xnand_abcd wa[4] wa[3] wa[2] wa[1] abcd nand4
+Xcheck_r31p wa[4] wa[3] wa[2] wa[1] is_r31p and4
+Xcheck_r31 is_r31p wa[0] is_r31 nand2
 
-* Invert the NAND result.
-* notabcd = 1 only if wa[4:1] = 1111
-* notabcd = 0 otherwise
-Xnotabcd abcd notabcd inverter
-
-* NAND the first four bits and 5th bit
-* This checks if all 5 bits are 1 
-* if all 1, werf_ = 0
-* if not all 1, werf_ = 1
-Xnand_abcde notabcd wa[0] is_allbits_one nand2
-
-* if All bits are 1, werf_ becomes 0 automatically
-* if Not all bits are 1, original werf signal is used
-Xwerf_final werf is_allbits_one werf_ and2
+* Xf_werf will check if both werf and is_r31 are true 
+Xf_werf werf is_r31 werf_ and2
 
 *******************************************************************************
 * Xcontrol is a read-only memory (ROM) that defines what to feed into the
@@ -115,7 +101,6 @@ Xwerf_final werf is_allbits_one werf_ and2
 *                      times 2 (first half is for z = 0, second half for z = 1)
 * TODO: Fill these lines with the proper control signals for each opcode!
 *******************************************************************************
-
 Xcontrol  vdd  0  0  z opcode[5:0]  control[13:0]
 + $memory width=14 nlocations=128 contents=(
 + 0b11000000000000 0b11000000000000 0b11000000000000 0b11000000000000 0b11000000000000 0b11000000000000 0b11000000000000 0b11000000000000
@@ -135,7 +120,7 @@ Xcontrol  vdd  0  0  z opcode[5:0]  control[13:0]
 + 0b00000101100001 0b00000101111001 0b00000101011001 0b11000000000000 0b00000110000001 0b00000110000101 0b00000110001101 0b11000000000000
 + 0b00010100000001 0b00010100000101 0b11000000000000 0b11000000000000 0b00010111001101 0b00010111010101 0b00010111011101 0b11000000000000
 + 0b00010101100001 0b00010101111001 0b00010101011001 0b11000000000000 0b00010110000001 0b00010110000101 0b00010110001101 0b11000000000000
-+)
++ )
 
 *******************************************************************************
 * Helper subckt to facilitate multi-bit joins.
@@ -235,22 +220,44 @@ Xjdisplayb wr_werfs[2:0]    wr werf werf_          join
 .plot sd(memwd[31:0])
 
 *******************************************************************************
-* A. What is the true purpose of the additional Z input (on top of the 
-* instruction opcode inputs) in the Xcontrol blocks?
-
-* The opcode simply tells the machine if it's BNE or BEQ, but does'nt know the result of that comparison yet
-* Hence it needs the outside Additional Z input or the result of the comparison 
-* to tell the machine whether the condition is true or false and should it should branch or stay depending on if it's BNE or BEQ
+* Guide Questions: 
+* A. What is the true purpose of the additional Z input in the Xcontrol block?
+* 
+* Answer: The true purpose of the additional Z Input is for it to allow the control logic to determine which
+* outputs of the instructions go where depending on the result of the ALU, so it go select the next program 
+* counter (PC) correctly. This Z input is for specifically for the conditional branch instructions such as BEQ, 
+* and BNE. The signal of the input provides the result, like for a BEQ instruction, if Z = 1, then the control 
+* logic outputs PCSEL as 01 for the branch to be taken and if Z = 0, it will output PCSEL as 00 which 
+* continues to the next instruction. If it is a BNE instruction, if Z = 0, then the control logic will output 
+* PCSEL as 01 to take the branch, and if Z =1, it will output PCSEL as 00 to the branch. 
+*
+*
+* B. What is the true purpose of setting the invalid instructions' control
+* logic output to 0b11000000000000?
+*
+* Answer: The true purpose of setting the invalid instructions' control logic output to the constant
+* 0b11000000000000 is so that whatever invalid opcodes are inputted will not cause unintended writes, 
+* similar to a HALT instruction.The output means that it will not do anything except advance to the PC 
+* normally, so the CPU will just skip them and continue executing the next instruction. 
+*
+* C. Does your Lab 7 program (that you yourself provided) represent a
+* good number of opcodes that your control logic supports? What’s
+* the functional coverage?  (i.e., which opcodes did you implement in
+* your control logic table, and which ones are actually exercised by your Lab 7 program?)
+* 
+* Answer: Our Lab7 program which is the In-place Array Sorting represents a good number of opcodes that our control logic supports, 
+* which includes LD, ST, ADDC, SUBC, CMPLE, CMOVE, HALT, etc, though it has less than half of the instructions compared 
+* to what the control logic has.
+*
+* Our XControl logic follows the opcode table in order: 
+* ADD, ADDC, AND, ANDC, BEQ, BNE, CMPEQ, CMPEQC, CMPLE, 
+* CMPLEC, CMPLT, CMPLTC, JMP, LD, OR, ORC, SHL, SHLC, SHR, SHRC, 
+* SRA, SRAC, ST, SUB, SUBC, XOR, XORC, HALT.
+*
 *******************************************************************************
-* B. What is the true purpose of setting the invalid instructions' control logic
-* output  to the constant 0b11000000000000?
 
-* It's so any invalid opcodes are treated as halt to avoid any unexpected operations that may take place that 
-* may tamper with data (unexpected writing,storing,jumping etc.)
-*******************************************************************************
-* C. Does your Lab 7 program represent a good number of opcodes that your control
-* logic supports? What's the functional coverage?
 
-* Lab 7 represents LD ST BEQ BNE ADD ADDC SUBC HALT
-* Lab 7 program represents a good number of opcodes as it covers
-* loads,stores,branching and arithmetic 
+
+
+
+
