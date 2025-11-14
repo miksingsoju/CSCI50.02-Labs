@@ -261,4 +261,6 @@ Xjdisplayb wr_werfs[2:0]    wr werf werf_          join
 * C. Does your Lab 7 program represent a good number of opcodes that your control
 * logic supports? What's the functional coverage?
 
-* insert
+* Lab 7 represents LD ST BEQ BNE ADD ADDC SUBC HALT
+* Lab 7 program represents a good number of opcodes as it covers
+* loads,stores,branching and arithmetic 
