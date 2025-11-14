@@ -248,12 +248,15 @@ Xjdisplayb wr_werfs[2:0]    wr werf werf_          join
 * A. What is the true purpose of the additional Z input (on top of the 
 * instruction opcode inputs) in the Xcontrol blocks?
 
-* insert
+* The opcode simply tells the machine if it's BNE or BEQ, but does'nt know the result of that comparison yet
+* Hence it needs the outside Additional Z input or the result of the comparison 
+* to tell the machine whether the condition is true or false and should it should branch or stay depending on if it's BNE or BEQ
 *******************************************************************************
 * B. What is the true purpose of setting the invalid instructions' control logic
 * output  to the constant 0b11000000000000?
 
-* insert
+* It's so any invalid opcodes are treated as halt to avoid any unexpected operations that may take place that 
+* may tamper with data (unexpected writing,storing,jumping etc.)
 *******************************************************************************
 * C. Does your Lab 7 program represent a good number of opcodes that your control
 * logic supports? What's the functional coverage?
