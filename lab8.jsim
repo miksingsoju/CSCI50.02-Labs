@@ -84,11 +84,25 @@ Xregisters  vdd  0    0      ra1_[4:0]  rd1_[31:0]
 * .connect werf werf_
 
 * R31 Logic: Force werf_ to 0 (OFF) if wa[4:0] is 0b11111 (31).
-* Use NAND to check if any bit is 0 
+* Use NAND to check if first 4 bits is 0 
+* If wa[4:1] are 1 then NAND output is 0.
+* If wa[4:1] has a 0 then NAND output is 1.
 Xnand_abcd wa[4] wa[3] wa[2] wa[1] abcd nand4
+
+* Invert the NAND result.
+* notabcd = 1 only if wa[4:1] = 1111
+* notabcd = 0 otherwise
 Xnotabcd abcd notabcd inverter
-Xnand_abcde notabcd wa[0] allbits_one nand2
-Xwerf_final werf allbits_one werf_ and2
+
+* NAND the first four bits and 5th bit
+* This checks if all 5 bits are 1 
+* if all 1, werf_ = 0
+* if not all 1, werf_ = 1
+Xnand_abcde notabcd wa[0] is_allbits_one nand2
+
+* if All bits are 1, werf_ becomes 0 automatically
+* if Not all bits are 1, original werf signal is used
+Xwerf_final werf is_allbits_one werf_ and2
 
 *******************************************************************************
 * Xcontrol is a read-only memory (ROM) that defines what to feed into the
@@ -100,6 +114,17 @@ Xwerf_final werf allbits_one werf_ and2
 *   succeeding lines = the control signals (14 bits each) for all 64 opcodes
 *                      times 2 (first half is for z = 0, second half for z = 1)
 * TODO: Fill these lines with the proper control signals for each opcode!
+*******************************************************************************
+
+*******************************************************************************
+* Row 1: HALT
+* Row 2: HALT
+* Row 3: HALT, LD, ST, JMP
+* ROW 4: BEQ, BNE, HALT
+* ROW 5: ADD, SUB, HALT, HALT, CMPEQ, CMPLT, CMPLE, HALT
+* ROW 6: AND, OR, XOR, SHL, SHR, SRA, HALT, ADDC
+* ROW 7: SUBC, HALT, HALT, CMPEQC, CMPLTC, CMPLEC, HALT, ANDC
+* ROW 8: ORC, XORC, SHLC, SHRC, SRAC, HALT
 *******************************************************************************
 Xcontrol  vdd  0  0  z opcode[5:0]  control[13:0]
 + $memory width=14 nlocations=128 contents=(
