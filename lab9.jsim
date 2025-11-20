@@ -102,8 +102,19 @@ Xcontrol  vdd  0  0  z opcode[5:0]  control[13:0]
 +)
 
 *******************************************************************************
-* Program Counter + Reset Logic
+* Program Counter Logic 
 *******************************************************************************
+* 32-bit Program Counter Register
+* The PC always loads the next instruction address (pc_next) on the clock edge.
+Xpc_reg reg32 clk reset vdd pc_next[31:0] pc[31:0]
+
+* Define 32-bit constant 4 (0x00000004) for PC + 4
+.connect 0 CONST_4[31:3]
+.connect 1 CONST_4[2]
+.connect 0 CONST_4[1:0]
+
+* PC + 4 Adder: Calculates the sequential next PC (PC + 4).
+Xpc_plus_4 pc[31:0] CONST_4[31:0] 0 pc_plus_4_result[31:0] p4_cout[1:0] add32
 
 *******************************************************************************
 * ALU Function 
@@ -237,6 +248,23 @@ Xalu alu_a[31:0] alu_b[31:0] alufn[5:0] alu_out[31:0] alu32
 *******************************************************************************
 * Branch & Jump Target
 *******************************************************************************
+* Branch Target Calculation: PC + 4 + (4 * C)
+* Sign-Extend 16-bit constant 'c' to 32 bits (c_sign_ext[31:0]).
+.connect c[15]#16 c_sign_ext[31:16]
+.connect c[15:0] c_sign_ext[15:0]
+
+* Shift Left by 2 (Multiply by 4) to get the offset 4*C (c_shl2[31:0]).
+.connect c_sign_ext[29:0] c_shl2[31:2]
+.connect 0 c_shl2[1:0]
+
+* Branch Target Adder: (PC + 4) + (4 * C)
+Xbranch_target_adder pc_plus_4_result[31:0] c_shl2[31:0] 0 branch_target[31:0] br_cout[1:0] add32
+
+* Jump Target Calculation: Combines top 4 bits of (PC+4)
+* with the instruction's 26-bit immediate and adds '00' at the end.
+.connect pc_plus_4_result[31:28] jump_target[31:28]
+.connect inst[25:0] jump_target[27:2]
+.connect 0 jump_target[1:0]
 
 *******************************************************************************
 * Helper subckt to facilitate multi-bit joins.
@@ -317,5 +345,9 @@ Xjdisplayb wr_werfs[2:0]    wr werf werf_          join
 .plot sd(memwd[31:0])
 
 .plot sd(alu_out[31:0])
-
+.plot b(z)
+.plot sd(pc_plus_4_result[31:0])
+.plot sd(branch_target[31:0])
+.plot sd(jump_target[31:0])
+.plot sd(pc_next[31:0])
 
