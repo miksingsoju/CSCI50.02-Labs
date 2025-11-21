@@ -28,7 +28,7 @@ Wreset reset nrz(0, 3, 100ns, 15ns, 0.001ns, 0.001ns)
 Xmemory  vdd  0    0   pc[8:2]    inst[31:0]
 +        vdd  0    0   mema[8:2]  memrd[31:0]
 +        0    clk  wr  mema[8:2]  memwd[31:0]
-+ $memory width=32 nlocations=128 file="lab7-1.bin"
++ $memory width=32 nlocations=128 file="lab7.bin"
 
 *******************************************************************************
 * Xregisters is a register memory device to store your Beta registers r0 - r31.
@@ -164,7 +164,7 @@ Xpc_plus_4 pc[31:0] CONST_4[31:0] 0 pc_plus_4_result[31:0] p4_cout[1:0] add32
 
     *zero flag 
      Xzflag fas[31:0] z nor32
-     
+
     *overflow flag
     Xof cout[31] cout[30] v xor2
 .ends
@@ -233,6 +233,7 @@ Xalu alu_a[31:0] alu_b[31:0] alufn[5:0] alu_out[31:0] alu32
 *******************************************************************************
 * Nor Gate for Z (BNE/BEQ)
 *******************************************************************************
+Xz_gate alu_out[31:0] z nor32
 
 *******************************************************************************
 * PCSEL, RA2SEL, BSEL, WDSEL MUX
