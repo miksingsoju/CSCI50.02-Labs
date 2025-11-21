@@ -133,28 +133,38 @@ Xpc_plus_4 pc[31:0] CONST_4[31:0] 0 pc_plus_4_result[31:0] p4_cout[1:0] add32
     Xadder a[31:0] b[31:0] cout[30:0] cin0 sum[31:0] cout[31:0] fa
 .ends
 
+* nor32 
+.subckt nor32 in[31:0] out 
+    Xnor0 in[0:3] n0 nor4
+    Xnor1 in[4:7] n1 nor4
+    Xnor2 in[8:11] n2 nor4
+    Xnor3 in[12:15] n3 nor4
+    Xnor4 in[16:19] n4 nor4
+    Xnor5 in[20:23] n5 nor4
+    Xnor6 in[24:27] n6 nor4
+    Xnor7 in[28:31] n7 nor4
+    Xnand1 n[0:3] m1 nand4
+    Xnand2 n[4:7] m2 nand4
+    Xnor9 m1 m2 out nor2
+.ends
+
 * Adder/Subtractor 
 .subckt as32 a[31:0] b[31:0] op0 fas[31:0] n v z
     *inverts b
     Xinv b[31:0] b_inv[31:0] inverter
+
     *chooses between b or inv b depending on op code
     Xmux op0#32 b[31:0] b_inv[31:0] b_sel[31:0] mux2
+
     *adder/subtractor
     Xadd a[31:0] b_sel[31:0] op0 fas[31:0] cout[31:30] add32
+
     *negative flag
     .connect fas[31] n 
+
     *zero flag 
-    Xnor0 fas[0:3] n0 nor4
-    Xnor1 fas[4:7] n1 nor4
-    Xnor2 fas[8:11] n2 nor4
-    Xnor3 fas[12:15] n3 nor4
-    Xnor4 fas[16:19] n4 nor4
-    Xnor5 fas[20:23] n5 nor4
-    Xnor6 fas[24:27] n6 nor4
-    Xnor7 fas[28:31] n7 nor4
-    Xnand1 n[0:3] m1 nand4
-    Xnand2 n[4:7] m2 nand4
-    Xnor9 m1 m2 z nor2
+     Xzflag fas[31:0] z nor32
+     
     *overflow flag
     Xof cout[31] cout[30] v xor2
 .ends
