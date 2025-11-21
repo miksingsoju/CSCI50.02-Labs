@@ -276,12 +276,13 @@ Xmux_ra2sel ra2sel#5 rb[4:0] rc[4:0] ra2_[4:0] mux2
 * MUX for BSEL (B Select - ALU second operand)
 * 0: rd2_[31:0] (register value)
 * 1: constant[31:0] (sign-extended immediate)
+Xmux_bsel bsel#32 rd2_[31:0] constant[31:0] alu_b[31:0] mux2
 
 * MUX for WDSEL (Write Data Select)
 * 00: alu_out[31:0] (ALU result - for arithmetic)
 * 01: memrd[31:0] (memory read - for load)
 * 10: pc_plus_4[31:0] (for JAL return address)
-
+Xmux_wdsel 
 
 
 *******************************************************************************
