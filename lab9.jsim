@@ -232,34 +232,6 @@ Xpc_plus_4 pc[31:0] CONST_4[31:0] 0 pc_plus_4_result[31:0] p4_cout[1:0] add32
 
 
 *******************************************************************************
-* Nor Gate for Z (BNE/BEQ)
-*******************************************************************************
-Xz_gate alu_out[31:0] z nor32
-
-*******************************************************************************
-* PCSEL, RA2SEL, BSEL, WDSEL MUX
-*******************************************************************************
-* MUX for PCSEL (Program Counter Select)
-* 00: PC + 4 (normal flow)
-* 01: Branch Target (PC + 4 + 4*C)
-* 10: Jump Target (from instruction)
-
-* MUX for RA2SEL (Register A2 Select)
-* 0: rb[4:0] (for most instructions)
-* 1: rc[4:0] (for store instructions)
-
-* MUX for BSEL (B Select - ALU second operand)
-* 0: rd2_[31:0] (register value)
-* 1: constant[31:0] (sign-extended immediate)
-
-* MUX for WDSEL (Write Data Select)
-* 00: alu_out[31:0] (ALU result - for arithmetic)
-* 01: memrd[31:0] (memory read - for load)
-* 10: pc_plus_4[31:0] (for JAL return address)
-
-
-
-*******************************************************************************
 * Branch & Jump Target
 *******************************************************************************
 * Branch Target Calculation: PC + 4 + (4 * C)
@@ -279,6 +251,36 @@ Xbranch_target_adder pc_plus_4_result[31:0] c_shl2[31:0] 0 branch_target[31:0] b
 .connect pc_plus_4_result[31:28] jump_target[31:28]
 .connect inst[25:0] jump_target[27:2]
 .connect 0 jump_target[1:0]
+
+
+*******************************************************************************
+* Nor Gate for Z (BNE/BEQ)
+*******************************************************************************
+Xz_gate alu_out[31:0] z nor32
+
+*******************************************************************************
+* PCSEL, RA2SEL, BSEL, WDSEL MUX
+*******************************************************************************
+* MUX for PCSEL (Program Counter Select)
+* 00: PC + 4 (normal flow)
+* 01: Branch Target (PC + 4 + 4*C)
+* 10: Jump Target (from instruction)
+
+
+* MUX for RA2SEL (Register A2 Select)
+* 0: rb[4:0] (for most instructions)
+* 1: rc[4:0] (for store instructions)
+
+* MUX for BSEL (B Select - ALU second operand)
+* 0: rd2_[31:0] (register value)
+* 1: constant[31:0] (sign-extended immediate)
+
+* MUX for WDSEL (Write Data Select)
+* 00: alu_out[31:0] (ALU result - for arithmetic)
+* 01: memrd[31:0] (memory read - for load)
+* 10: pc_plus_4[31:0] (for JAL return address)
+
+
 
 *******************************************************************************
 * Helper subckt to facilitate multi-bit joins.
