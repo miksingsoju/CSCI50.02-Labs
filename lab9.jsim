@@ -282,7 +282,8 @@ Xmux_bsel bsel#32 rd2_[31:0] constant[31:0] alu_b[31:0] mux2
 * 00: alu_out[31:0] (ALU result - for arithmetic)
 * 01: memrd[31:0] (memory read - for load)
 * 10: pc_plus_4[31:0] (for JAL return address)
-Xmux_wdsel 
+Xmux_wdsel wdsel[0:1]#32 alu_out[31:0] pc_plus_4[31:0] memrd[31:0] pc[31:0] wd[31:0] mux4
+
 
 
 *******************************************************************************
