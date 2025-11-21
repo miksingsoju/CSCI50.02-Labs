@@ -265,7 +265,8 @@ Xz_gate alu_out[31:0] z nor32
 * 00: PC + 4 (normal flow)
 * 01: Branch Target (PC + 4 + 4*C)
 * 10: Jump Target (from instruction)
-Xmux_pc pc_plus_4_result[31:0] branch_target[31:0] jump_target[31:0] pcsel pc_next[31:0] mux4
+* 11: Halt
+Xmux_pcsel pcsel[0:1] pc_plus_4_result[31:0] jump_target[31:0] branch_target[31:0] pc[31:0] pc_next[31:0] mux4
 
 * MUX for RA2SEL (Register A2 Select)
 * 0: rb[4:0] (for most instructions)
