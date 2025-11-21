@@ -28,7 +28,7 @@ Wreset reset nrz(0, 3, 100ns, 15ns, 0.001ns, 0.001ns)
 Xmemory  vdd  0    0   pc[8:2]    inst[31:0]
 +        vdd  0    0   mema[8:2]  memrd[31:0]
 +        0    clk  wr  mema[8:2]  memwd[31:0]
-+ $memory width=32 nlocations=128 file="lab7-1.bin"
++ $memory width=32 nlocations=128 file="lab7.bin"
 
 *******************************************************************************
 * Xregisters is a register memory device to store your Beta registers r0 - r31.
@@ -102,10 +102,6 @@ Xcontrol  vdd  0  0  z opcode[5:0]  control[13:0]
 +)
 
 *******************************************************************************
-* Program Counter + Reset Logic
-*******************************************************************************
-
-*******************************************************************************
 * ALU Function 
 *******************************************************************************
 * Full adder 
@@ -122,28 +118,38 @@ Xcontrol  vdd  0  0  z opcode[5:0]  control[13:0]
     Xadder a[31:0] b[31:0] cout[30:0] cin0 sum[31:0] cout[31:0] fa
 .ends
 
+* nor32 
+.subckt nor32 in[31:0] out 
+    Xnor0 in[0:3] n0 nor4
+    Xnor1 in[4:7] n1 nor4
+    Xnor2 in[8:11] n2 nor4
+    Xnor3 in[12:15] n3 nor4
+    Xnor4 in[16:19] n4 nor4
+    Xnor5 in[20:23] n5 nor4
+    Xnor6 in[24:27] n6 nor4
+    Xnor7 in[28:31] n7 nor4
+    Xnand1 n[0:3] m1 nand4
+    Xnand2 n[4:7] m2 nand4
+    Xnor9 m1 m2 out nor2
+.ends
+
 * Adder/Subtractor 
 .subckt as32 a[31:0] b[31:0] op0 fas[31:0] n v z
     *inverts b
     Xinv b[31:0] b_inv[31:0] inverter
+
     *chooses between b or inv b depending on op code
     Xmux op0#32 b[31:0] b_inv[31:0] b_sel[31:0] mux2
+
     *adder/subtractor
     Xadd a[31:0] b_sel[31:0] op0 fas[31:0] cout[31:30] add32
+
     *negative flag
     .connect fas[31] n 
+
     *zero flag 
-    Xnor0 fas[0:3] n0 nor4
-    Xnor1 fas[4:7] n1 nor4
-    Xnor2 fas[8:11] n2 nor4
-    Xnor3 fas[12:15] n3 nor4
-    Xnor4 fas[16:19] n4 nor4
-    Xnor5 fas[20:23] n5 nor4
-    Xnor6 fas[24:27] n6 nor4
-    Xnor7 fas[28:31] n7 nor4
-    Xnand1 n[0:3] m1 nand4
-    Xnand2 n[4:7] m2 nand4
-    Xnor9 m1 m2 z nor2
+     Xzflag fas[31:0] z nor32
+
     *overflow flag
     Xof cout[31] cout[30] v xor2
 .ends
@@ -210,33 +216,75 @@ Xcontrol  vdd  0  0  z opcode[5:0]  control[13:0]
 Xalu alu_a[31:0] alu_b[31:0] alufn[5:0] alu_out[31:0] alu32
 
 *******************************************************************************
+* Program Counter Logic 
+*******************************************************************************
+* 32-bit Program Counter Register
+* The PC always loads the next instruction address (pc_next) on the clock edge.
+Xpc_reg reg32 clk reset vdd pc_next[31:0] pc[31:0]
+
+* Define 32-bit constant 4 (0x00000004) for PC + 4
+.connect 0 CONST_4[31:3]
+.connect 1 CONST_4[2]
+.connect 0 CONST_4[1:0]
+
+* PC + 4 Adder: Calculates the sequential next PC (PC + 4).
+Xpc_plus_4 pc[31:0] CONST_4[31:0] 0 pc_plus_4_result[31:0] p4_cout[1:0] add32
+
+
+*******************************************************************************
+* Branch & Jump Target
+*******************************************************************************
+* Branch Target Calculation: PC + 4 + (4 * C)
+* Sign-Extend 16-bit constant 'c' to 32 bits (c_sign_ext[31:0]).
+.connect c[15]#16 c_sign_ext[31:16]
+.connect c[15:0] c_sign_ext[15:0]
+
+* Shift Left by 2 (Multiply by 4) to get the offset 4*C (c_shl2[31:0]).
+.connect c_sign_ext[29:0] c_shl2[31:2]
+.connect 0 c_shl2[1:0]
+
+* Branch Target Adder: (PC + 4) + (4 * C)
+Xbranch_target_adder pc_plus_4_result[31:0] c_shl2[31:0] 0 branch_target[31:0] br_cout[1:0] add32
+
+* Jump Target Calculation: Combines top 4 bits of (PC+4)
+* with the instruction's 26-bit immediate and adds '00' at the end.
+.connect pc_plus_4_result[31:28] jump_target[31:28]
+.connect inst[25:0] jump_target[27:2]
+.connect 0 jump_target[1:0]
+
+
+*******************************************************************************
 * Nor Gate for Z (BNE/BEQ)
 *******************************************************************************
+Xz_gate alu_out[31:0] z nor32
 
 *******************************************************************************
 * PCSEL, RA2SEL, BSEL, WDSEL MUX
 *******************************************************************************
+* MUX for PCSEL (Program Counter Select)
+* 00: PC + 4 (normal flow)
+* 01: Branch Target (PC + 4 + 4*C)
+* 10: Jump Target (from instruction)
+* 11: Halt
+Xmux_pcsel pcsel[0:1]#32 pc_plus_4_result[31:0] jump_target[31:0] branch_target[31:0] pc[31:0] pc_next[31:0] mux4
+
 * MUX for RA2SEL (Register A2 Select)
 * 0: rb[4:0] (for most instructions)
 * 1: rc[4:0] (for store instructions)
+Xmux_ra2sel ra2sel#5 rb[4:0] rc[4:0] ra2_[4:0] mux2
 
 * MUX for BSEL (B Select - ALU second operand)
 * 0: rd2_[31:0] (register value)
 * 1: constant[31:0] (sign-extended immediate)
+Xmux_bsel bsel#32 rd2_[31:0] constant[31:0] alu_b[31:0] mux2
 
 * MUX for WDSEL (Write Data Select)
 * 00: alu_out[31:0] (ALU result - for arithmetic)
 * 01: memrd[31:0] (memory read - for load)
 * 10: pc_plus_4[31:0] (for JAL return address)
+Xmux_wdsel wdsel[0:1]#32 alu_out[31:0] pc_plus_4[31:0] memrd[31:0] pc[31:0] wd[31:0] mux4
 
-* MUX for PCSEL (Program Counter Select)
-* 00: PC + 4 (normal flow)
-* 01: Branch Target (PC + 4 + 4*C)
-* 10: Jump Target (from instruction)
 
-*******************************************************************************
-* Branch & Jump Target
-*******************************************************************************
 
 *******************************************************************************
 * Helper subckt to facilitate multi-bit joins.
@@ -317,5 +365,9 @@ Xjdisplayb wr_werfs[2:0]    wr werf werf_          join
 .plot sd(memwd[31:0])
 
 .plot sd(alu_out[31:0])
-
+.plot b(z)
+.plot sd(pc_plus_4_result[31:0])
+.plot sd(branch_target[31:0])
+.plot sd(jump_target[31:0])
+.plot sd(pc_next[31:0])
 
