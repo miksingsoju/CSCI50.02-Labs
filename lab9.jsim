@@ -266,11 +266,12 @@ Xz_gate alu_out[31:0] z nor32
 * 01: Branch Target (PC + 4 + 4*C)
 * 10: Jump Target (from instruction)
 * 11: Halt
-Xmux_pcsel pcsel[0:1] pc_plus_4_result[31:0] jump_target[31:0] branch_target[31:0] pc[31:0] pc_next[31:0] mux4
+Xmux_pcsel pcsel[0:1]#32 pc_plus_4_result[31:0] jump_target[31:0] branch_target[31:0] pc[31:0] pc_next[31:0] mux4
 
 * MUX for RA2SEL (Register A2 Select)
 * 0: rb[4:0] (for most instructions)
 * 1: rc[4:0] (for store instructions)
+Xmux_ra2sel ra2sel#5 rb[4:0] rc[4:0] ra2_[4:0] mux2
 
 * MUX for BSEL (B Select - ALU second operand)
 * 0: rd2_[31:0] (register value)
