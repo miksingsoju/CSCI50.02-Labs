@@ -176,7 +176,7 @@ Xcontrol  vdd  0  0  z opcode[5:0]  control[13:0]
 
 * Bitwise Boolean 
 .subckt bool32 a[31:0] b[31:0] op[3:0] fbool[31:0]
-    Xbool a[0:31] b[0:31] op[3:0]#32 fbool[0:31] mux4
+    Xbool a[3:01] b[31:0] op0#32 op1#32 op2#32 op3#32 fbool[31:0] mux4
 .ends
 
 * 32-bit Shifter 
